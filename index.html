@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>3D Human Anatomy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #1a1a2e; overflow: hidden; font-family: sans-serif; }
+
+    #ui {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 12px;
+      padding: 16px;
+      color: #eee;
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    h3 { font-size: 13px; color: #aaa; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    .row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .swatch {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.15s;
+    }
+    .swatch:hover, .swatch.on { border-color: #fff; transform: scale(1.1); }
+
+    label { font-size: 12px; color: #bbb; }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: #7eb8f7;
+    }
+
+    button {
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
+      color: #ddd;
+      cursor: pointer;
+      font-size: 12px;
+      transition: 0.15s;
+    }
+    button:hover { background: rgba(255,255,255,0.16); }
+    button.on { background: rgba(100,160,255,0.3); border-color: rgba(100,160,255,0.5); color: #9cc; }
+
+    #info {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #666;
+      font-size: 12px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="ui">
+  <h3>3D Anatomy</h3>
+
+  <div>
+    <label>Skin Color</label>
+    <div class="row" style="margin-top:6px" id="swatches"></div>
+    <input type="color" id="picker" value="#e8c9a0" style="margin-top:8px;width:100%;height:28px;border:none;border-radius:6px;cursor:pointer;" />
+  </div>
+
+  <div>
+    <label>Light Intensity</label>
+    <input type="range" id="li" min="0" max="5" step="0.1" value="2.5" />
+  </div>
+
+  <div>
+    <label>Ambient</label>
+    <input type="range" id="ai" min="0" max="2" step="0.05" value="0.5" />
+  </div>
+
+  <div>
+    <label>Light Color</label>
+    <input type="color" id="lc" value="#ffffff" style="width:100%;height:28px;border:none;border-radius:6px;cursor:pointer;" />
+  </div>
+
+  <button id="moveBtn">☀ Move Light</button>
+
+  <button id="resetBtn" style="border-color:rgba(255,80,80,0.3);color:#f88;">↺ Reset</button>
+</div>
+
+<div id="info">Drag to rotate · Scroll to zoom</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+// ── Renderer ──────────────────────────────────────
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1a2e);
+scene.fog = new THREE.FogExp2(0x1a1a2e, 0.04);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+camera.position.set(0, 1.7, 5.5);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.2, 0);
+controls.enableDamping = true;
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+// ── Lights ───────────────────────────────────────
+const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambient);
+
+const sun = new THREE.DirectionalLight(0xffffff, 2.5);
+sun.position.set(3, 5, 3);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+scene.add(sun);
+
+// Light ball indicator
+const lightBall = new THREE.Mesh(
+  new THREE.SphereGeometry(0.12, 16, 16),
+  new THREE.MeshBasicMaterial({ color: 0xffff88 })
+);
+lightBall.position.copy(sun.position);
+scene.add(lightBall);
+
+// Rim light
+scene.add(Object.assign(new THREE.DirectionalLight(0x4466ff, 0.4), { position: new THREE.Vector3(-3, 2, -4) }));
+
+// ── Floor ────────────────────────────────────────
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(20, 20),
+  new THREE.ShadowMaterial({ opacity: 0.3 })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+scene.add(new THREE.GridHelper(16, 32, 0x333355, 0x222244));
+
+// ── Human Figure ─────────────────────────────────
+const mat = new THREE.MeshStandardMaterial({ color: 0xe8c9a0, roughness: 0.55, metalness: 0.02 });
+const human = new THREE.Group();
+scene.add(human);
+
+function part(geo, x, y, z, sx = 1, sy = 1, sz = 1) {
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(x, y, z);
+  m.scale.set(sx, sy, sz);
+  m.castShadow = true;
+  m.receiveShadow = true;
+  human.add(m);
+  return m;
+}
+
+// Head + neck
+part(new THREE.SphereGeometry(0.24, 24, 24), 0, 3.28, 0);
+part(new THREE.CylinderGeometry(0.1, 0.12, 0.28, 16), 0, 2.93, 0);
+
+// Torso
+part(new THREE.CylinderGeometry(0.38, 0.34, 0.7, 20),  0, 2.35, 0);
+part(new THREE.CylinderGeometry(0.34, 0.3,  0.42, 20), 0, 1.83, 0);
+part(new THREE.CylinderGeometry(0.32, 0.26, 0.35, 20), 0, 1.46, 0);
+
+// Arms
+for (const s of [-1, 1]) {
+  part(new THREE.SphereGeometry(0.15, 14, 14),           s * 0.5,  2.58, 0); // shoulder
+  part(new THREE.CylinderGeometry(0.09, 0.08, 0.62, 14), s * 0.6,  2.22, 0).rotation.z = s * 0.18;
+  part(new THREE.SphereGeometry(0.085, 10, 10),          s * 0.65, 1.87, 0); // elbow
+  part(new THREE.CylinderGeometry(0.075,0.065,0.56, 14), s * 0.72, 1.56, 0.04).rotation.z = s * 0.22;
+  part(new THREE.SphereGeometry(0.09, 10, 10),           s * 0.83, 1.15, 0.07, 1.1, 0.9, 0.7); // hand
+}
+
+// Legs
+for (const s of [-1, 1]) {
+  part(new THREE.CylinderGeometry(0.16, 0.14, 0.72, 16), s * 0.18, 0.88, 0);
+  part(new THREE.SphereGeometry(0.12, 12, 12),            s * 0.18, 0.49, 0.02); // knee
+  part(new THREE.CylinderGeometry(0.1, 0.085, 0.68, 14), s * 0.18, 0.13, 0);
+  part(new THREE.SphereGeometry(0.09, 10, 10),            s * 0.18, -0.32, 0.06, 0.9, 0.5, 1.4); // foot
+}
+
+// Dark eyes
+const eyeM = new THREE.MeshStandardMaterial({ color: 0x222222 });
+for (const s of [-1, 1]) {
+  const e = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), eyeM);
+  e.position.set(s * 0.085, 3.25, 0.21);
+  human.add(e);
+}
+
+// ── Colors ───────────────────────────────────────
+const COLORS = [
+  '#f5deb3','#e8c9a0','#d4a574','#c68642',
+  '#8d5524','#4a2912','#ff6b6b','#45b7d1',
+  '#96ceb4','#dfe6e9',
+];
+
+const swatchEl = document.getElementById('swatches');
+COLORS.forEach((hex, i) => {
+  const s = document.createElement('div');
+  s.className = 'swatch' + (i === 1 ? ' on' : '');
+  s.style.background = hex;
+  s.onclick = () => {
+    document.querySelectorAll('.swatch').forEach(x => x.classList.remove('on'));
+    s.classList.add('on');
+    mat.color.set(hex);
+    document.getElementById('picker').value = hex;
+  };
+  swatchEl.appendChild(s);
+});
+
+document.getElementById('picker').addEventListener('input', e => {
+  mat.color.set(e.target.value);
+  document.querySelectorAll('.swatch').forEach(x => x.classList.remove('on'));
+});
+
+// ── Light Controls ───────────────────────────────
+document.getElementById('li').addEventListener('input', e => sun.intensity = +e.target.value);
+document.getElementById('ai').addEventListener('input', e => ambient.intensity = +e.target.value);
+document.getElementById('lc').addEventListener('input', e => {
+  sun.color.set(e.target.value);
+  lightBall.material.color.set(e.target.value);
+});
+
+// ── Move Light Mode ──────────────────────────────
+let movingLight = false;
+const moveBtn = document.getElementById('moveBtn');
+const dragPlane = new THREE.Plane();
+const ray = new THREE.Raycaster();
+const mp = new THREE.Vector2();
+let dragging = false;
+
+moveBtn.addEventListener('click', () => {
+  movingLight = !movingLight;
+  moveBtn.classList.toggle('on', movingLight);
+  moveBtn.textContent = movingLight ? '✕ Done' : '☀ Move Light';
+  controls.enabled = !movingLight;
+  renderer.domElement.style.cursor = movingLight ? 'crosshair' : '';
+  document.getElementById('info').textContent = movingLight
+    ? 'Click & drag to reposition the light'
+    : 'Drag to rotate · Scroll to zoom';
+});
+
+renderer.domElement.addEventListener('pointerdown', e => { if (movingLight) { dragging = true; moveLight(e); } });
+renderer.domElement.addEventListener('pointermove', e => { if (movingLight && dragging) moveLight(e); });
+renderer.domElement.addEventListener('pointerup',   () => { dragging = false; });
+
+function moveLight(e) {
+  const r = renderer.domElement.getBoundingClientRect();
+  mp.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(mp, camera);
+  dragPlane.setFromNormalAndCoplanarPoint(
+    camera.getWorldDirection(new THREE.Vector3()).negate(),
+    lightBall.position
+  );
+  const hit = new THREE.Vector3();
+  if (ray.ray.intersectPlane(dragPlane, hit)) {
+    lightBall.position.copy(hit);
+    sun.position.copy(hit);
+  }
+}
+
+// ── Reset ────────────────────────────────────────
+document.getElementById('resetBtn').addEventListener('click', () => {
+  mat.color.set(0xe8c9a0);
+  document.getElementById('picker').value = '#e8c9a0';
+  document.querySelectorAll('.swatch').forEach((s, i) => s.classList.toggle('on', i === 1));
+  sun.position.set(3, 5, 3); sun.intensity = 2.5; sun.color.set(0xffffff);
+  lightBall.position.copy(sun.position); lightBall.material.color.set(0xffff88);
+  ambient.intensity = 0.5;
+  document.getElementById('li').value = 2.5;
+  document.getElementById('ai').value = 0.5;
+  document.getElementById('lc').value = '#ffffff';
+  camera.position.set(0, 1.7, 5.5);
+  controls.target.set(0, 1.2, 0);
+  if (movingLight) moveBtn.click();
+});
+
+// ── Render Loop ──────────────────────────────────
+let t = 0;
+(function animate() {
+  requestAnimationFrame(animate);
+  t += 0.006;
+  human.rotation.y = Math.sin(t * 0.4) * 0.025;
+  controls.update();
+  renderer.render(scene, camera);
+})();
+</script>
+</body>
+</html>
