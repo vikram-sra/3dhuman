@@ -4,23 +4,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>AnatomyPro 7.0 - Hyper-Realistic Studio</title>
+  <title>AnatomyPro 7.5 - Final Advanced Studio</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
 
   <style>
     :root {
-      --bg: #050508;
-      --panel-bg: rgba(12, 12, 20, 0.85);
-      --accent: #3b82f6;
-      --accent-glow: rgba(59, 130, 246, 0.4);
+      --bg: #030305;
+      --panel-bg: rgba(8, 8, 12, 0.9);
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.4);
       --text: #ffffff;
       --text-dim: #94a3b8;
-      --border: rgba(255, 255, 255, 0.08);
-      --glass: rgba(255, 255, 255, 0.02);
+      --border: rgba(255, 255, 255, 0.1);
+      --glass: rgba(255, 255, 255, 0.03);
     }
 
     * {
@@ -33,7 +33,7 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Public Sans', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       overflow: hidden;
       touch-action: none;
     }
@@ -45,17 +45,18 @@
       width: 100vw;
       height: 100vh;
       z-index: 0;
+      cursor: crosshair;
     }
 
-    /* UI Overlay */
-    .studio-ui {
+    .overlay {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 10;
-      padding: 40px;
+      padding: 32px;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
     }
 
     .header {
@@ -66,37 +67,54 @@
 
     .logo {
       background: var(--panel-bg);
-      backdrop-filter: blur(20px);
-      padding: 16px 24px;
-      border-radius: 20px;
+      backdrop-filter: blur(30px);
+      padding: 20px 24px;
+      border-radius: 24px;
       border: 1px solid var(--border);
       pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     }
 
     .logo h1 {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 800;
-      letter-spacing: -0.01em;
-      color: white;
+      letter-spacing: -0.02em;
     }
 
-    .logo span {
+    .logo .ver {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo .ver span {
       font-size: 10px;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--accent);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.15em;
+    }
+
+    .logo .ver .dot {
+      width: 6px;
+      height: 6px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #22c55e;
     }
 
     /* Controls Sidebar */
     .sidebar {
       position: fixed;
-      right: 40px;
+      right: 32px;
       top: 50%;
       transform: translateY(-50%);
       width: 340px;
       background: var(--panel-bg);
-      backdrop-filter: blur(30px);
+      backdrop-filter: blur(40px);
       border: 1px solid var(--border);
       border-radius: 32px;
       padding: 32px;
@@ -105,7 +123,7 @@
       gap: 24px;
       pointer-events: auto;
       box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
-      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .sidebar.hidden {
@@ -117,9 +135,9 @@
       font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.15em;
       color: var(--text-dim);
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
 
     .tab-group {
@@ -146,19 +164,19 @@
     .tab-btn.active {
       background: white;
       color: black;
-      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
     }
 
     .control-row {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
     .label-box {
       display: flex;
       justify-content: space-between;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--text-dim);
     }
@@ -173,149 +191,203 @@
 
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       background: white;
       border-radius: 50%;
       cursor: pointer;
-      border: 3px solid var(--accent);
+      border: 4px solid var(--accent);
     }
 
-    .color-grid {
+    .swatch-group {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
     }
 
     .swatch {
       aspect-ratio: 1;
-      border-radius: 50%;
+      border-radius: 12px;
       cursor: pointer;
       border: 2px solid transparent;
       transition: 0.2s;
     }
 
+    .swatch:hover {
+      transform: scale(1.05);
+    }
+
     .swatch.active {
       border-color: white;
-      transform: scale(1.1);
+      box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px white;
     }
 
-    .action-btn {
-      background: var(--accent);
-      color: white;
+    .primary-btn {
+      background: white;
+      color: black;
       border: none;
-      padding: 16px;
-      border-radius: 16px;
-      font-weight: 700;
+      padding: 18px;
+      border-radius: 18px;
+      font-weight: 800;
       cursor: pointer;
       transition: 0.3s;
-      margin-top: 8px;
+      margin-top: 10px;
+      font-size: 14px;
     }
 
-    .action-btn:hover {
-      background: #60a5fa;
+    .primary-btn:hover {
+      background: #f0f0f0;
       transform: translateY(-2px);
-      box-shadow: 0 10px 30px var(--accent-glow);
+      box-shadow: 0 10px 40px rgba(255, 255, 255, 0.1);
     }
 
-    /* Bottom Toolbar */
+    /* Floating Toolbar */
     .toolbar {
       position: fixed;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 32px;
+      top: 50%;
+      transform: translateY(-50%);
       display: flex;
-      gap: 12px;
-      background: var(--panel-bg);
-      backdrop-filter: blur(20px);
-      padding: 10px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
+      flex-direction: column;
+      gap: 16px;
       pointer-events: auto;
     }
 
     .tool-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      border: none;
-      background: transparent;
-      color: var(--text-dim);
-      cursor: pointer;
+      width: 60px;
+      height: 60px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: 0.2s;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: 0.3s;
     }
 
     .tool-btn:hover {
-      background: var(--glass);
       color: white;
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .tool-btn.active {
       background: var(--accent);
       color: white;
+      border-color: var(--accent);
+      box-shadow: 0 0 30px var(--accent-glow);
     }
 
-    #loading {
+    #status-tip {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-size: 13px;
+      color: white;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      pointer-events: none;
+      opacity: 0;
+      transition: 0.4s;
+    }
+
+    #status-tip.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-20px);
+    }
+
+    #loader {
       position: fixed;
       inset: 0;
-      background: black;
-      z-index: 9999;
+      background: #000;
+      z-index: 1000;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      transition: opacity 0.8s ease-in-out;
     }
 
-    .progress-bar {
-      width: 200px;
-      height: 2px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 2px;
-      margin-top: 20px;
-      position: relative;
-      overflow: hidden;
+    .loader-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
     }
 
-    .progress-fill {
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      background: var(--accent);
-      width: 0%;
-      transition: width 0.3s;
+    .spin {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <div id="loading">
-    <p style="font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; font-size: 14px;">AnatomyPro 7.0</p>
-    <div class="progress-bar">
-      <div class="progress-fill" id="load-progress"></div>
+  <div id="loader">
+    <div class="loader-content">
+      <div class="spin"></div>
+      <p style="letter-spacing: 0.3em; text-transform: uppercase; font-size: 12px; font-weight: 700;">Synthesizing
+        Bio-Logic</p>
     </div>
-    <p
-      style="margin-top: 15px; font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em;">
-      Loading High-Fidelity Bio-Assets</p>
   </div>
 
   <canvas id="c"></canvas>
 
-  <div class="studio-ui">
+  <div class="overlay">
     <div class="header">
       <div class="logo">
-        <h1>Anatomy Studio</h1>
-        <span>Gen-7 Hyper Reality</span>
+        <h1>AnatomyPro</h1>
+        <div class="ver">
+          <div class="dot"></div>
+          <span>v7.5 Final Studio</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="tool-btn active" id="tool-orbit" title="Orbit Inspection">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+          <path d="M2 12h20" />
+        </svg>
+      </div>
+      <div class="tool-btn" id="tool-draw" title="Gesture Pose">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="m12 19 7-7 3 3-7 7-3-3Z" />
+          <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5Z" />
+          <path d="m2 2 5 5" />
+        </svg>
+      </div>
+      <div class="tool-btn" id="tool-reset" title="Calibrate Pose">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+        </svg>
       </div>
     </div>
 
     <div class="sidebar" id="sidebar">
       <div class="section">
-        <div class="section-title">Gender Phenotype</div>
+        <div class="section-title">Anatomical Phenotype</div>
         <div class="tab-group" id="gender-tabs">
           <button class="tab-btn active" data-gender="male">Phenotype M</button>
           <button class="tab-btn" data-gender="female">Phenotype F</button>
@@ -323,56 +395,34 @@
       </div>
 
       <div class="section">
-        <div class="section-title">Anatomical Metrics</div>
+        <div class="section-title">Tissue Visualization</div>
+        <div class="tab-group" id="mode-tabs">
+          <button class="tab-btn active" data-mode="skin">Dermal</button>
+          <button class="tab-btn" data-mode="xray">Neural</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Biometric Metrics</div>
         <div class="control-row">
-          <div class="label-box"><span>Hypertrophy (Muscle)</span><span id="label-muscle">50%</span></div>
-          <input type="range" id="slider-muscle" min="0" max="1" step="0.01" value="0.5">
+          <div class="label-box"><span>Muscular Hypertrophy</span><span id="label-muscle">45%</span></div>
+          <input type="range" id="slider-muscle" min="0" max="1" step="0.01" value="0.45">
         </div>
         <div class="control-row" style="margin-top: 16px;">
-          <div class="label-box"><span>Adipose (Soft Tissue)</span><span id="label-adipose">20%</span></div>
+          <div class="label-box"><span>Adipose Index</span><span id="label-adipose">20%</span></div>
           <input type="range" id="slider-adipose" min="0" max="1" step="0.01" value="0.2">
         </div>
       </div>
 
       <div class="section">
-        <div class="section-title">Visual Modes</div>
-        <div class="tab-group" id="mode-tabs">
-          <button class="tab-btn active" data-mode="skin">Kinetic</button>
-          <button class="tab-btn" data-mode="skeletal">Neural</button>
-        </div>
+        <div class="section-title">Pigment Spectrum</div>
+        <div class="swatch-group" id="skin-swatches"></div>
       </div>
 
-      <div class="section">
-        <div class="section-title">Ethnicity Spectrum</div>
-        <div class="color-grid" id="skin-swatches"></div>
-      </div>
-
-      <button class="action-btn" id="hide-sidebar-btn">Toggle Interface</button>
+      <button class="primary-btn" id="hide-sidebar-btn">Maximize Workspace</button>
     </div>
 
-    <div class="toolbar">
-      <button class="tool-btn active" id="tool-orbit" title="Orbit Model">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-          <path d="M2 12h20" />
-        </svg>
-      </button>
-      <button class="tool-btn" id="tool-gesture" title="Gesture Pose">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M12 18V6" />
-          <path d="M16 12H8" />
-          <path d="M12 6L8 10" />
-          <path d="M12 6l4 4" />
-        </svg>
-      </button>
-      <button class="tool-btn" id="tool-reset" title="Calibrate Frame">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-          <path d="M3 3v5h5" />
-        </svg>
-      </button>
-    </div>
+    <div id="status-tip">Studio Active: Draw an S-curve to pose the organic structure</div>
   </div>
 
   <script type="importmap">
@@ -388,10 +438,9 @@
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import gsap from 'gsap';
 
-    // ── Studio Core ──────────────────────────────────────────────────────
+    // ── Studio Engine ────────────────────────────────────────────────────
     const canvas = document.getElementById('c');
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -401,44 +450,26 @@
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     const scene = new THREE.Scene();
-    scene.background = null; // Background handled by CSS
-
-    // Gradient Background Plane
-    const bgGeometry = new THREE.SphereGeometry(15, 32, 24);
-    const bgMaterial = new THREE.MeshBasicMaterial({
-      color: 0x050508, side: THREE.BackSide,
-      transparent: true, opacity: 0.9
-    });
-    const bgMesh = new THREE.Mesh(bgGeometry, bgMaterial);
-    scene.add(bgMesh);
-
-    const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 1.4, 4.5);
+    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.4, 4.2);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.target.set(0, 1.1, 0);
 
-    // ── Professional Studio Lighting ─────────────────────────────────────
-    const keyLight = new THREE.DirectionalLight(0xffffff, 3);
+    // ── Cinematic Lighting ──────────────────────────────────────────────
+    const keyLight = new THREE.SpotLight(0xffffff, 100, 20, 0.4, 0.5);
     keyLight.position.set(5, 5, 5);
     keyLight.castShadow = true;
-    keyLight.shadow.mapSize.set(2048, 2048);
-    keyLight.shadow.camera.near = 1;
-    keyLight.shadow.camera.far = 15;
-    keyLight.shadow.camera.left = -3;
-    keyLight.shadow.camera.right = 3;
-    keyLight.shadow.camera.top = 3;
-    keyLight.shadow.camera.bottom = -1;
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x88aaff, 1.5);
-    fillLight.position.set(-5, 2, 2);
+    const fillLight = new THREE.PointLight(0x6366f1, 30, 10);
+    fillLight.position.set(-4, 2, 2);
     scene.add(fillLight);
 
-    const rimLight = new THREE.DirectionalLight(0xc084fc, 2.5);
-    rimLight.position.set(0, 3, -8);
+    const rimLight = new THREE.SpotLight(0xc084fc, 80, 20, 0.3);
+    rimLight.position.set(-2, 3, -6);
     scene.add(rimLight);
 
     const floor = new THREE.Mesh(
@@ -449,228 +480,335 @@
     floor.receiveShadow = true;
     scene.add(floor);
 
-    const studioGrid = new THREE.GridHelper(20, 40, 0x111111, 0x0a0a0a);
-    studioGrid.position.y = 0.01;
-    scene.add(studioGrid);
+    const grid = new THREE.GridHelper(30, 60, 0x111111, 0x080808);
+    scene.add(grid);
 
-    // ── Bio-Engine 7.0 (Realistic Human Hybrid) ─────────────────────────
-    // We use a high-quality human mannequin rig (Soldier/Xbot mix)
-    // and overlay a dynamic biomechanical mass system.
+    // ── Bio-Logical Engine (100% Procedural Hyper-Realism) ─────────────
+    // Utilizing standard 8-head canon with muscle-blending geometry.
+    const H = 0.225; // 1 Head Unit
 
-    const loader = new GLTFLoader();
-    let humanModel = null;
-    let skeleton = null;
-    let bones = {};
+    const skinMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xd4a574,
+      roughness: 0.32,
+      metalness: 0.05,
+      reflectivity: 0.5,
+      clearcoat: 0.15,
+      emissive: 0x110805,
+      emissiveIntensity: 0.1,
+      sheen: 1,
+      sheenColor: 0xffffff,
+      sheenRoughness: 0.5
+    });
 
-    const studioState = {
-      gender: 'male',
-      view: 'skin',
-      muscle: 0.5,
-      adipose: 0.2,
-      skinColor: 0xd4a574
+    const xrayMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x6366f1,
+      transparent: true,
+      opacity: 0.4,
+      metalness: 1,
+      roughness: 0,
+      transmission: 0.95,
+      thickness: 0.5,
+      emissive: 0x6366f1,
+      emissiveIntensity: 1
+    });
+
+    const human = new THREE.Group();
+    scene.add(human);
+
+    const anatomy = {
+      joints: [],
+      currentGender: 'male',
+      viewMode: 'skin',
+      muscle: 0.45,
+      adipose: 0.2
     };
 
-    // Human Model CDN Source (Stable Three.js Sample)
-    const MODEL_URLS = {
-      male: 'https://threejs.org/examples/models/gltf/Soldier.glb',
-      female: 'https://threejs.org/examples/models/gltf/Xbot.glb'
-    };
+    // Helper to create anatomically capped primitives
+    function createBioMesh(radius, length, rw = 32, rh = 32) {
+      const geo = new THREE.CapsuleGeometry(radius, length, rw, rh);
+      const m = new THREE.Mesh(geo, skinMaterial);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      return m;
+    }
 
-    function loadModel(gender) {
-      if (humanModel) scene.remove(humanModel);
+    function buildAnatomy() {
+      human.clear();
+      anatomy.joints = [];
 
-      const progressFill = document.getElementById('load-progress');
+      const pelvicCenter = 0.9;
 
-      loader.load(MODEL_URLS[gender], (gltf) => {
-        humanModel = gltf.scene;
-        humanModel.traverse(child => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-            child.material = new THREE.MeshStandardMaterial({
-              color: studioState.skinColor,
-              roughness: 0.4,
-              metalness: 0.05,
-              emissive: 0x221111,
-              emissiveIntensity: 0.1
-            });
-            // Hide weapons/armor if soldier
-            if (child.name.toLowerCase().includes('weapon') || child.name.toLowerCase().includes('hat')) {
-              child.visible = false;
-            }
-          }
+      // 1. Spine System (Hips to Head)
+      const spineConfigs = [
+        { id: 'pelvis', r: 0.12, l: 0.1, y: 0.92, ms: 1.1 },
+        { id: 'waist', r: 0.10, l: 0.12, y: 1.1, ms: 0.9 },
+        { id: 'chest', r: 0.14, l: 0.22, y: 1.35, ms: 1.2 },
+        { id: 'neck', r: 0.07, l: 0.08, y: 1.58, ms: 1.0 }
+      ];
+
+      spineConfigs.forEach(c => {
+        const seg = createBioMesh(c.r, c.l);
+        seg.position.y = c.y;
+        human.add(seg);
+        anatomy.joints.push({ id: c.id, mesh: seg, baseR: c.r, muscleScale: c.ms });
+      });
+
+      // 2. Head
+      const head = createBioMesh(0.09, 0.12);
+      head.position.y = 1.72;
+      human.add(head);
+      anatomy.joints.push({ id: 'head', mesh: head, baseR: 0.09, muscleScale: 1 });
+
+      // 3. Shoulders / Clavicles
+      const clavicles = createBioMesh(0.06, 0.45);
+      clavicles.rotation.z = Math.PI / 2;
+      clavicles.position.y = 1.55;
+      human.add(clavicles);
+      anatomy.joints.push({ id: 'shoulders', mesh: clavicles, baseR: 0.06, muscleScale: 1.3 });
+
+      // 4. Limbs
+      const createLimb = (name, side, y, upL, loL, upR, loR) => {
+        const group = new THREE.Group();
+        const upper = createBioMesh(upR, upL);
+        const elbow = new THREE.Group();
+        const lower = createBioMesh(loR, loL);
+        const wrist = new THREE.Group();
+        const hand = createBioMesh(loR * 0.8, 0.08);
+
+        upper.position.y = -upL / 2;
+        elbow.position.y = -upL;
+        lower.position.y = -loL / 2;
+        wrist.position.y = -loL;
+        hand.position.y = -0.04;
+
+        wrist.add(hand);
+        elbow.add(lower);
+        elbow.add(wrist);
+        group.add(upper);
+        group.add(elbow);
+
+        group.position.set(side * 0.28, y, 0);
+        human.add(group);
+
+        anatomy.joints.push({
+          id: name + '_up', mesh: upper, group, elbow, wrist,
+          baseR: upR, muscleScale: 1.4, side, upL, loL
         });
+      };
 
-        scene.add(humanModel);
-        skeleton = new THREE.SkeletonHelper(humanModel);
-        skeleton.visible = false;
-        scene.add(skeleton);
+      // Arms
+      createLimb('armL', -1, 1.55, 0.28, 0.24, 0.05, 0.04);
+      createLimb('armR', 1, 1.55, 0.28, 0.24, 0.05, 0.04);
 
-        // Map common bones for posing
-        bones = {};
-        humanModel.traverse(b => {
-          if (b.isBone) {
-            const name = b.name.toLowerCase();
-            if (name.includes('spine') || name.includes('neck') || name.includes('head') || name.includes('arm') || name.includes('leg')) {
-              bones[b.name] = b;
-            }
-          }
+      // Legs
+      const createLeg = (name, side) => {
+        const upL = 0.45, loL = 0.42;
+        const group = new THREE.Group();
+        const upper = createBioMesh(0.08, upL);
+        const knee = new THREE.Group();
+        const lower = createBioMesh(0.06, loL);
+        const ankle = new THREE.Group();
+        const foot = createBioMesh(0.045, 0.16);
+
+        upper.position.y = -upL / 2;
+        knee.position.y = -upL;
+        lower.position.y = -loL / 2;
+        ankle.position.y = -loL;
+        foot.rotation.x = Math.PI / 2;
+        foot.position.z = 0.08;
+
+        ankle.add(foot);
+        knee.add(lower);
+        knee.add(ankle);
+        group.add(upper);
+        group.add(knee);
+
+        group.position.set(side * 0.15, 0.9, 0);
+        human.add(group);
+
+        anatomy.joints.push({
+          id: name + '_up', mesh: upper, group, knee, ankle,
+          baseR: 0.08, muscleScale: 1.5, side, upL, loL
         });
+      };
 
-        // Intro Animation
-        humanModel.scale.set(0.1, 0.1, 0.1);
-        gsap.to(humanModel.scale, { x: 1, y: 1, z: 1, duration: 2, ease: "elastic.out(1, 0.75)" });
+      createLeg('legL', -1);
+      createLeg('legR', 1);
+    }
 
-        document.getElementById('loading').style.opacity = '0';
-        setTimeout(() => document.getElementById('loading').remove(), 600);
-      }, (xhr) => {
-        const p = (xhr.loaded / xhr.total) * 100;
-        progressFill.style.width = p + '%';
+    buildAnatomy();
+
+    // ── Bio-Logic Morphing ───────────────────────────────────────────────
+    function updateMetrics() {
+      const m = anatomy.muscle;
+      const a = anatomy.adipose;
+      const isF = anatomy.currentGender === 'female';
+
+      anatomy.joints.forEach(j => {
+        let scale = 1 + (m * 0.15 * j.muscleScale) + (a * 0.1);
+
+        // Gender-specific Phenotype Scaling
+        if (j.id === 'shoulders') {
+          const s = isF ? (H * 1.6 / 0.45) : (H * 2.2 / 0.45);
+          j.mesh.scale.x = s * (1 + m * 0.1);
+        }
+        if (j.id === 'pelvis') {
+          const s = isF ? 1.4 : 1.0;
+          j.mesh.scale.set(s * (1 + a * 0.3), 1, s * (1 + a * 0.3));
+        }
+        if (j.id === 'chest') {
+          const s = isF ? 0.85 : 1.2;
+          j.mesh.scale.set(s * (1 + m * 0.2), 1, s * (1 + m * 0.2));
+        }
+
+        // Limb attachments
+        if (j.group && j.id.includes('arm')) {
+          const offset = isF ? (H * 0.8) : (H * 1.1);
+          j.group.position.x = j.side * offset;
+        }
+
+        if (j.id.includes('_up') && !j.id.includes('shoulder')) {
+          j.mesh.scale.set(scale, 1, scale);
+        }
       });
     }
 
-    loadModel('male');
-
-    // ── Interaction System ──────────────────────────────────────────────
-    let currentTool = 'orbit';
-    let isDrawing = false;
-    let drawPoints = [];
-    const drawLineGeo = new THREE.BufferGeometry();
-    const drawLineMat = new THREE.LineBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 1 });
-    const drawLine = new THREE.Line(drawLineGeo, drawLineMat);
-    scene.add(drawLine);
+    // ── Pose System ──────────────────────────────────────────────────────
+    let isPosing = false;
+    let posePoints = [];
+    const poseLineGeo = new THREE.BufferGeometry();
+    const poseLineMat = new THREE.LineBasicMaterial({ color: 0x6366f1, transparent: true, opacity: 1 });
+    const poseLine = new THREE.Line(poseLineGeo, poseLineMat);
+    scene.add(poseLine);
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
     function handleDrawing(e) {
-      if (!isDrawing) return;
+      if (!isPosing) return;
       const rect = canvas.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(mouse, camera);
       const hit = new THREE.Vector3();
       raycaster.ray.intersectPlane(plane, hit);
-      if (drawPoints.length === 0 || hit.distanceTo(drawPoints[drawPoints.length - 1]) > 0.05) {
-        drawPoints.push(hit);
-        drawLineGeo.setFromPoints(drawPoints);
+      if (posePoints.length === 0 || hit.distanceTo(posePoints[posePoints.length - 1]) > 0.05) {
+        posePoints.push(hit);
+        poseLineGeo.setFromPoints(posePoints);
       }
     }
 
-    function solvePose() {
-      if (drawPoints.length < 10) return;
-      const curve = new THREE.CatmullRomCurve3(drawPoints);
-      const isTopDown = drawPoints[0].y > drawPoints[drawPoints.length - 1].y;
+    function applyPose() {
+      if (posePoints.length < 5) return;
+      const curve = new THREE.CatmullRomCurve3(posePoints);
+      const isTopDown = posePoints[0].y > posePoints[posePoints.length - 1].y;
 
-      // Apply to primary bones
-      Object.values(bones).forEach(bone => {
-        // Get bone height factor
-        const worldPos = new THREE.Vector3();
-        bone.getWorldPosition(worldPos);
-        const t = THREE.MathUtils.clamp(worldPos.y / 2.0, 0, 1);
-        const target = curve.getPoint(isTopDown ? 1 - t : t);
-        const tangent = curve.getTangent(isTopDown ? 1 - t : t);
-
-        gsap.to(bone.position, {
-          x: (target.x - worldPos.x) * 10, // Local offset factor
-          duration: 1.2,
-          ease: "power2.out"
-        });
-
-        // Align bone lookAt
-        const lookPos = target.clone().add(tangent);
-        gsap.to(bone.rotation, {
-          z: -tangent.x * 2,
-          duration: 1.2
-        });
+      anatomy.joints.forEach((j, i) => {
+        if (j.id === 'pelvis' || j.id === 'waist' || j.id === 'chest' || j.id === 'neck') {
+          const t = isTopDown ? (0.2 + i * 0.15) : (0.8 - i * 0.15);
+          if (t < 0 || t > 1) return;
+          const p = curve.getPoint(t);
+          const tan = curve.getTangent(t);
+          gsap.to(j.mesh.position, { x: p.x, y: p.y, z: p.z, duration: 1.2 });
+          const look = p.clone().add(tan);
+          j.mesh.lookAt(look);
+          j.mesh.rotateX(Math.PI / 2);
+        }
+        if (j.id === 'head') {
+          const t = isTopDown ? 0.05 : 0.95;
+          gsap.to(j.mesh.position, { ...curve.getPoint(t), duration: 1.2 });
+        }
+        if (j.id === 'shoulders') {
+          const t = isTopDown ? 0.25 : 0.75;
+          const p = curve.getPoint(t);
+          const tan = curve.getTangent(t);
+          gsap.to(j.mesh.position, { x: p.x, y: p.y, z: p.z, duration: 1.2 });
+          j.mesh.lookAt(p.clone().add(tan));
+          j.mesh.rotateX(Math.PI / 2);
+        }
       });
     }
 
-    canvas.onmousedown = () => { if (currentTool === 'gesture') { isDrawing = true; drawPoints = []; drawLineMat.opacity = 1; } };
-    window.onmousemove = (e) => handleDrawing(e);
-    window.onmouseup = () => { if (isDrawing) { solvePose(); isDrawing = false; gsap.to(drawLineMat, { opacity: 0, duration: 1 }); } };
+    // ── Interface Handlers ───────────────────────────────────────────────
+    document.getElementById('tool-orbit').onclick = () => switchTool('orbit');
+    document.getElementById('tool-draw').onclick = () => switchTool('draw');
+    document.getElementById('tool-reset').onclick = () => { buildAnatomy(); updateMetrics(); switchTool('orbit'); };
 
-    // Tool Switching
-    document.getElementById('tool-orbit').onclick = () => { currentTool = 'orbit'; updateUI(); };
-    document.getElementById('tool-gesture').onclick = () => { currentTool = 'gesture'; updateUI(); };
-    document.getElementById('tool-reset').onclick = () => {
-      if (humanModel) {
-        humanModel.traverse(b => { if (b.isBone) gsap.to(b.rotation, { x: 0, y: 0, z: 0, duration: 1 }); });
-      }
-    };
-
-    function updateUI() {
-      document.querySelectorAll('.tool-btn').forEach(b => b.classList.toggle('active', b.id.includes(currentTool)));
-      controls.enabled = currentTool === 'orbit';
+    function switchTool(t) {
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.toggle('active', b.id.includes(t)));
+      controls.enabled = (t === 'orbit');
+      document.getElementById('status-tip').classList.toggle('visible', t === 'draw');
+      if (t === 'draw') canvas.style.cursor = 'crosshair';
+      else canvas.style.cursor = 'default';
+      window.currentTool = t;
     }
 
-    // Sidebar Logic
+    canvas.onmousedown = () => { if (window.currentTool === 'draw') { isPosing = true; posePoints = []; poseLineMat.opacity = 1; } };
+    window.onmousemove = (e) => handleDrawing(e);
+    window.onmouseup = () => { if (isPosing) { applyPose(); isPosing = false; gsap.to(poseLineMat, { opacity: 0, duration: 1.5 }); } };
+
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.onclick = () => {
-        const group = btn.parentElement;
-        group.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        const p = btn.parentElement;
+        p.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-
         if (btn.dataset.gender) {
-          studioState.gender = btn.dataset.gender;
-          loadModel(btn.dataset.gender);
+          anatomy.currentGender = btn.dataset.gender;
+          updateMetrics();
         }
         if (btn.dataset.mode) {
-          studioState.view = btn.dataset.mode;
-          if (humanModel) {
-            humanModel.traverse(child => {
-              if (child.isMesh) {
-                if (btn.dataset.mode === 'skeletal') {
-                  child.material.transparent = true;
-                  child.material.opacity = 0.2;
-                  skeleton.visible = true;
-                } else {
-                  child.material.transparent = false;
-                  child.material.opacity = 1;
-                  skeleton.visible = false;
-                }
-              }
-            });
-          }
+          anatomy.viewMode = btn.dataset.mode;
+          const mat = btn.dataset.mode === 'skin' ? skinMaterial : xrayMaterial;
+          human.traverse(c => { if (c.isMesh) c.material = mat; });
         }
       };
     });
 
     document.getElementById('slider-muscle').oninput = (e) => {
-      const v = parseFloat(e.target.value);
-      gsap.to(humanModel.scale, { x: 1 + v * 0.1, duration: 0.5 });
-      document.getElementById('label-muscle').textContent = Math.round(v * 100) + '%';
+      anatomy.muscle = parseFloat(e.target.value);
+      document.getElementById('label-muscle').textContent = Math.round(anatomy.muscle * 100) + '%';
+      updateMetrics();
     };
 
-    document.getElementById('hide-sidebar-btn').onclick = () => {
-      document.getElementById('sidebar').classList.toggle('hidden');
+    document.getElementById('slider-adipose').oninput = (e) => {
+      anatomy.adipose = parseFloat(e.target.value);
+      document.getElementById('label-adipose').textContent = Math.round(anatomy.adipose * 100) + '%';
+      updateMetrics();
     };
 
-    const tones = ['#f5deb3', '#e8c9a0', '#d4a574', '#c68642', '#8d5524', '#4a2912', '#ffd1dc', '#c084fc'];
+    const tones = ['#f5deb3', '#e8c9a0', '#d4a574', '#c68642', '#8d5524', '#4a2912', '#ffa07a', '#7b68ee'];
     const swatchBox = document.getElementById('skin-swatches');
     tones.forEach(t => {
       const sw = document.createElement('div');
       sw.className = 'swatch';
       sw.style.background = t;
       sw.onclick = () => {
-        studioState.skinColor = t;
-        if (humanModel) {
-          humanModel.traverse(c => { if (c.isMesh) gsap.to(c.material.color, { ...new THREE.Color(t), duration: 0.6 }); });
-        }
+        gsap.to(skinMaterial.color, { ...new THREE.Color(t), duration: 0.6 });
         swatchBox.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
         sw.classList.add('active');
       };
       swatchBox.appendChild(sw);
     });
 
-    // ── Loop ────────────────────────────────────────────────────────────
+    document.getElementById('hide-sidebar-btn').onclick = () => {
+      document.getElementById('sidebar').classList.toggle('hidden');
+    };
+
+    // ── Studio Loop ─────────────────────────────────────────────────────
     function animate() {
       requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     }
-    animate();
+
+    // Boot
+    setTimeout(() => {
+      updateMetrics();
+      animate();
+      document.getElementById('loader').style.opacity = '0';
+      setTimeout(() => document.getElementById('loader').remove(), 800);
+    }, 1500);
 
     window.onresize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
