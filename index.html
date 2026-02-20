@@ -515,120 +515,151 @@
     grid.position.y = -0.01;
     scene.add(grid);
 
-    // ── Realistic Human Engine ───────────────────────────────────────────
-    // We use a high-fidelity capsule-based approach with morphable joints
+    // ── Realistic Human Engine (8 Heads Proportions) ──────────────────
+    // Standard anatomical unit: 1 Head Height (H)
+    const H = 0.225; // 1.8m / 8 heads
 
     const skinMaterial = new THREE.MeshStandardMaterial({
       color: 0xd4a574,
-      roughness: 0.4,
+      roughness: 0.3,
       metalness: 0.05,
-      // Fake SSS using emissive or rim
-      emissive: 0x221111,
-      emissiveIntensity: 0.2
+      emissive: 0x110805,
+      emissiveIntensity: 0.12
     });
 
     const bodyParts = new THREE.Group();
     scene.add(bodyParts);
 
-    // Geometry Factory
-    const createCapsule = (radius, length) => {
-      const geo = new THREE.CapsuleGeometry(radius, length, 10, 20);
-      return new THREE.Mesh(geo, skinMaterial);
+    const createCapsule = (radius, length, rw = 12, rh = 18) => {
+      const geo = new THREE.CapsuleGeometry(radius, length, rw, rh);
+      const mesh = new THREE.Mesh(geo, skinMaterial);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return mesh;
     };
 
     const anatomy = {
       spine: [],
       limbs: {},
       genderProps: {
-        male: { shoulders: 0.6, hips: 0.35, chest: 0.35, height: 1.0 },
-        female: { shoulders: 0.4, hips: 0.5, chest: 0.28, height: 0.95 }
+        male: { shoulderWidth: H * 2.2, hipWidth: H * 1.5, torsoScale: 1.1, chestRadius: 0.13, hipRadius: 0.11 },
+        female: { shoulderWidth: H * 1.7, hipWidth: H * 1.9, torsoScale: 0.9, chestRadius: 0.11, hipRadius: 0.14 }
       },
       currentGender: 'male'
     };
 
     function buildAnatomy() {
-      // Spine Segments (Hips to Head)
-      const segments = 5;
-      const segLen = 0.15;
-      for (let i = 0; i < segments; i++) {
-        const seg = createCapsule(0.12, segLen);
-        seg.position.y = 0.7 + i * (segLen + 0.05);
-        seg.castShadow = true;
+      bodyParts.clear();
+      anatomy.spine = [];
+      anatomy.limbs = {};
+
+      // Hips are at approx 4H = 0.9 units
+      const pelvicCenter = 0.9;
+
+      // 1. Spine System
+      // Pelvis (0.9), Waist (1.1), Chest (1.35), Upper Chest (1.5)
+      const spineLayers = [
+        { r: 0.11, l: 0.12, y: 0.95 },  // Pelvis
+        { r: 0.09, l: 0.14, y: 1.15 },  // Lumbar
+        { r: 0.13, l: 0.22, y: 1.38 },  // Thoracic
+        { r: 0.07, l: 0.08, y: 1.58 }   // Neck
+      ];
+
+      spineLayers.forEach(layer => {
+        const seg = createCapsule(layer.r, layer.l);
+        seg.position.y = layer.y;
         bodyParts.add(seg);
         anatomy.spine.push(seg);
-      }
+      });
 
-      // Head
-      const head = createCapsule(0.12, 0.15);
-      head.position.y = 1.9;
-      head.castShadow = true;
+      // 2. Head (1.8 - H/2 = 1.68 center-ish)
+      const head = createCapsule(0.08, 0.12);
+      head.position.y = 1.72;
       bodyParts.add(head);
       anatomy.limbs.head = head;
 
-      // Shoulders
-      const shoulders = createCapsule(0.1, 0.5); // Width determined by gender
+      // 3. Clavicles / Shoulders
+      const shoulders = createCapsule(0.05, 0.45);
       shoulders.rotation.z = Math.PI / 2;
-      shoulders.position.y = 1.7;
+      shoulders.position.y = 1.55;
       bodyParts.add(shoulders);
       anatomy.limbs.shoulders = shoulders;
 
-      // Limbs (Arms & Legs)
-      const createLimb = (name, x, y, len, radius) => {
-        const upper = createCapsule(radius, len);
-        const lower = createCapsule(radius * 0.8, len);
-        upper.position.set(x, y, 0);
-        lower.position.set(x, y - len, 0);
-        bodyParts.add(upper);
-        bodyParts.add(lower);
-        anatomy.limbs[name] = { upper, lower };
+      // 4. Arms (Upper: 1.25H = 0.28, Lower: 1H = 0.22)
+      const buildArm = (side) => {
+        const upL = 0.28, loL = 0.24;
+        const group = new THREE.Group();
+        const upper = createCapsule(0.045, upL);
+        const elbow = new THREE.Group();
+        const lower = createCapsule(0.038, loL);
+        const hand = createCapsule(0.03, 0.08);
+
+        upper.position.y = -upL / 2;
+        elbow.position.y = -upL;
+        lower.position.y = -loL / 2;
+        hand.position.y = -loL - 0.04;
+
+        elbow.add(lower);
+        elbow.add(hand);
+        group.add(upper);
+        group.add(elbow);
+
+        const sideMult = anatomy.genderProps.male.shoulderWidth / 2;
+        group.position.set(side * sideMult, 1.55, 0);
+        bodyParts.add(group);
+        anatomy.limbs[side < 0 ? 'armL' : 'armR'] = { group, upper, elbow, lower };
       };
 
-      createLimb('armL', -0.3, 1.5, 0.35, 0.05);
-      createLimb('armR', 0.3, 1.5, 0.35, 0.05);
-      createLimb('legL', -0.15, 0.5, 0.45, 0.07);
-      createLimb('legR', 0.15, 0.5, 0.45, 0.07);
+      buildArm(-1);
+      buildArm(1);
+
+      // 5. Legs (Upper: 2H = 0.45, Lower: 2H = 0.45)
+      const buildLeg = (side) => {
+        const upL = 0.45, loL = 0.42;
+        const group = new THREE.Group();
+        const upper = createCapsule(0.08, upL);
+        const knee = new THREE.Group();
+        const lower = createCapsule(0.06, loL);
+        const foot = createCapsule(0.045, 0.16);
+
+        upper.position.y = -upL / 2;
+        knee.position.y = -upL;
+        lower.position.y = -loL / 2;
+        foot.rotation.x = Math.PI / 2;
+        foot.position.set(0, -loL - 0.02, 0.08);
+
+        knee.add(lower);
+        knee.add(foot);
+        group.add(upper);
+        group.add(knee);
+
+        group.position.set(side * 0.15, 0.9, 0);
+        bodyParts.add(group);
+        anatomy.limbs[side < 0 ? 'legL' : 'legR'] = { group, upper, knee, lower };
+      };
+
+      buildLeg(-1);
+      buildLeg(1);
     }
 
     buildAnatomy();
 
     // Reset Pose
     function resetPose() {
-      const segLen = 0.15;
-      anatomy.spine.forEach((seg, i) => {
-        gsap.to(seg.position, { y: 0.7 + i * (segLen + 0.05), x: 0, z: 0, duration: 1, ease: "power3.out" });
-        gsap.to(seg.rotation, { x: 0, y: 0, z: 0, duration: 1 });
-      });
+      buildAnatomy(); // Re-sync structure
+      morphTo(anatomy.currentGender);
 
-      // Reset Limbs
-      const props = anatomy.genderProps[anatomy.currentGender];
-      gsap.to(anatomy.limbs.head.position, { y: 1.85, x: 0, z: 0, duration: 1 });
-      gsap.to(anatomy.limbs.shoulders.position, { y: 1.7, x: 0, z: 0, duration: 1 });
-      gsap.to(anatomy.limbs.shoulders.scale, { x: 1, duration: 1 });
-
-      const resetL = (limb, x, y, len) => {
-        gsap.to(limb.upper.position, { x, y, z: 0, duration: 1 });
-        gsap.to(limb.lower.position, { x, y: y - len - 0.1, z: 0, duration: 1 });
-        gsap.to(limb.upper.rotation, { x: 0, y: 0, z: 0, duration: 1 });
-        gsap.to(limb.lower.rotation, { x: 0, y: 0, z: 0, duration: 1 });
-      };
-
-      resetL(anatomy.limbs.armL, -props.shoulders / 2, 1.5, 0.35);
-      resetL(anatomy.limbs.armR, props.shoulders / 2, 1.5, 0.35);
-      resetL(anatomy.limbs.legL, -0.15, 0.5, 0.45);
-      resetL(anatomy.limbs.legR, 0.15, 0.5, 0.45);
+      // Final polish animation
+      gsap.from(bodyParts.scale, { x: 0.8, z: 0.8, y: 0.8, duration: 1, ease: "elastic.out(1, 0.5)" });
     }
 
     // ── Gesture Lab (S-Curve Magic) ────────────────────────────────────
     let isDrawing = false;
     let drawPoints = [];
     const drawLineGeo = new THREE.BufferGeometry();
-    const drawLineMat = new THREE.LineBasicMaterial({ color: 0x6366f1, linewidth: 3 });
+    const drawLineMat = new THREE.LineBasicMaterial({ color: 0x6366f1, transparent: true, opacity: 1 });
     const drawLine = new THREE.Line(drawLineGeo, drawLineMat);
     scene.add(drawLine);
-
-    const ghostMaterial = new THREE.MeshBasicMaterial({ color: 0x6366f1, transparent: true, opacity: 0.2 });
-    const suggestions = new THREE.Group();
-    scene.add(suggestions);
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
@@ -637,7 +668,7 @@
     function startDrawing(e) {
       isDrawing = true;
       drawPoints = [];
-      suggestions.clear();
+      drawLineMat.opacity = 1;
       updateDraw(e);
       controls.enabled = false;
     }
@@ -652,10 +683,12 @@
       const intersect = new THREE.Vector3();
       raycaster.ray.intersectPlane(drawingPlane, intersect);
 
-      drawPoints.push(intersect);
+      if (drawPoints.length === 0 || intersect.distanceTo(drawPoints[drawPoints.length - 1]) > 0.04) {
+        drawPoints.push(intersect);
+      }
+
       if (drawPoints.length > 2) {
         drawLineGeo.setFromPoints(drawPoints);
-        suggestPosture();
       }
     }
 
@@ -665,66 +698,43 @@
       controls.enabled = true;
       applyPosture();
 
-      // Fade out draw line
       gsap.to(drawLineMat, {
-        opacity: 0, duration: 0.5, onComplete: () => {
+        opacity: 0, duration: 1, onComplete: () => {
           drawLineGeo.setFromPoints([]);
-          drawLineMat.opacity = 1;
         }
       });
-    }
-
-    function suggestPosture() {
-      if (drawPoints.length < 5) return;
-      suggestions.clear();
-
-      const curve = new THREE.CatmullRomCurve3(drawPoints);
-      const segments = 10;
-      for (let i = 0; i <= segments; i++) {
-        const t = i / segments;
-        const pos = curve.getPoint(t);
-        const dot = new THREE.Mesh(new THREE.SphereGeometry(0.02), ghostMaterial);
-        dot.position.copy(pos);
-        suggestions.add(dot);
-      }
     }
 
     function applyPosture() {
       if (drawPoints.length < 5) return;
       const curve = new THREE.CatmullRomCurve3(drawPoints);
+      const isTopDown = drawPoints[0].y > drawPoints[drawPoints.length - 1].y;
 
-      // Align Spine
+      // Update Spine along curve
       anatomy.spine.forEach((seg, i) => {
-        const t = (i / (anatomy.spine.length - 1)) * 0.6 + 0.2; // Sample middle of curve
+        const t = isTopDown ? (0.2 + i * 0.15) : (0.8 - i * 0.15);
+        if (t < 0 || t > 1) return;
+
         const pos = curve.getPoint(t);
         const tangent = curve.getTangent(t);
 
-        gsap.to(seg.position, { x: pos.x, y: pos.y, z: pos.z, duration: 0.8, ease: "back.out(1.2)" });
-
-        // Alignment rotation
+        gsap.to(seg.position, { x: pos.x, y: pos.y, z: pos.z, duration: 0.8 });
         const lookAt = pos.clone().add(tangent);
         seg.lookAt(lookAt);
         seg.rotateX(Math.PI / 2);
       });
 
-      // Align Head
-      const headPos = curve.getPoint(0.9);
-      gsap.to(anatomy.limbs.head.position, { x: headPos.x, y: headPos.y, z: headPos.z, duration: 0.8 });
+      // Align Extremities
+      const headT = isTopDown ? 0.05 : 0.95;
+      const shoulderT = isTopDown ? 0.2 : 0.8;
 
-      // Align Shoulders
-      const shoulderPos = curve.getPoint(0.75);
-      gsap.to(anatomy.limbs.shoulders.position, { x: shoulderPos.x, y: shoulderPos.y, z: shoulderPos.z, duration: 0.8 });
+      gsap.to(anatomy.limbs.head.position, { ...curve.getPoint(headT), duration: 0.8 });
+      const sPos = curve.getPoint(shoulderT);
+      gsap.to(anatomy.limbs.shoulders.position, { ...sPos, duration: 0.8 });
 
-      // Dynamically suggest limb spread based on curve width
-      const width = Math.abs(drawPoints[0].x - drawPoints[drawPoints.length - 1].x);
-      const intensity = Math.min(width * 2, 1.5);
-
-      const p = anatomy.genderProps[anatomy.currentGender];
-
-      gsap.to(anatomy.limbs.armL.upper.rotation, { z: intensity, duration: 1 });
-      gsap.to(anatomy.limbs.armR.upper.rotation, { z: -intensity, duration: 1 });
-      gsap.to(anatomy.limbs.legL.upper.rotation, { z: intensity * 0.5, duration: 1 });
-      gsap.to(anatomy.limbs.legR.upper.rotation, { z: -intensity * 0.5, duration: 1 });
+      const sTangent = curve.getTangent(shoulderT);
+      anatomy.limbs.shoulders.lookAt(sPos.clone().add(sTangent));
+      anatomy.limbs.shoulders.rotateX(Math.PI / 2);
     }
 
     // ── Interaction Logic ──────────────────────────────────────────────
@@ -734,8 +744,6 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Tool Switching
-    let currentTool = 'orbit';
     document.getElementById('tool-orbit').onclick = () => switchTool('orbit');
     document.getElementById('tool-draw').onclick = () => switchTool('draw');
     document.getElementById('tool-reset').onclick = () => { resetPose(); switchTool('orbit'); };
@@ -744,10 +752,9 @@
       currentTool = t;
       document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
       document.getElementById('tool-' + t).classList.add('active');
-
       const tip = document.getElementById('status-tip');
       if (t === 'draw') {
-        tip.textContent = "Click and Drag to draw an S-curve for the gesture";
+        tip.textContent = "Draw a fluid S-curve to pose the figure";
         tip.classList.add('visible');
       } else {
         tip.classList.remove('visible');
@@ -758,7 +765,6 @@
     window.addEventListener('mousemove', (e) => { if (isDrawing) updateDraw(e); });
     window.addEventListener('mouseup', endDrawing);
 
-    // Gender Toggle
     document.querySelectorAll('.toggle-btn').forEach(btn => {
       btn.onclick = () => {
         document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
@@ -771,84 +777,66 @@
 
     function morphTo(gender) {
       const p = anatomy.genderProps[gender];
+      gsap.to(anatomy.limbs.shoulders.scale, { x: p.shoulderWidth / 0.45, duration: 1 });
 
-      // Shoulders
-      gsap.to(anatomy.limbs.shoulders.scale, { x: p.shoulders / 0.5, duration: 1, ease: "power2.inOut" });
-
-      // Hips (Spine segments scale)
       anatomy.spine.forEach((seg, i) => {
-        if (i < 2) { // Hips
-          gsap.to(seg.scale, { x: p.hips / 0.12, z: p.hips / 0.12, duration: 1 });
-        } else if (i === 3) { // Chest
-          gsap.to(seg.scale, { x: p.chest / 0.12, z: p.chest / 0.12, duration: 1 });
-        }
+        if (i === 0) gsap.to(seg.scale, { x: 1.2 * (gender === 'female' ? 1.2 : 0.9), z: 1.2 * (gender === 'female' ? 1.2 : 0.9), duration: 1 });
+        if (i === 2) gsap.to(seg.scale, { x: 1.1 * (gender === 'male' ? 1.2 : 0.9), z: 1.1 * (gender === 'male' ? 1.2 : 0.9), duration: 1 });
       });
 
-      // Update Limb Positions
-      gsap.to(anatomy.limbs.armL.upper.position, { x: -p.shoulders / 2, duration: 1 });
-      gsap.to(anatomy.limbs.armR.upper.position, { x: p.shoulders / 2, duration: 1 });
+      gsap.to(anatomy.limbs.armL.group.position, { x: -p.shoulderWidth / 2, duration: 1 });
+      gsap.to(anatomy.limbs.armR.group.position, { x: p.shoulderWidth / 2, duration: 1 });
 
-      // Color adjustment for gender vibe
-      gsap.to(skinMaterial.color, {
-        r: gender === 'female' ? 0.95 : 0.83,
-        g: gender === 'female' ? 0.85 : 0.78,
-        b: gender === 'female' ? 0.75 : 0.65,
-        duration: 1
-      });
+      const targetCol = gender === 'female' ? new THREE.Color(0xf5deb3) : new THREE.Color(0xd4a574);
+      gsap.to(skinMaterial.color, { r: targetCol.r, g: targetCol.g, b: targetCol.b, duration: 1 });
     }
 
     // Colors
-    const colors = ['#f5deb3', '#e8c9a0', '#d4a574', '#c68642', '#8d5524', '#4a2912', '#ffa07a', '#7b68ee', '#20b2aa', '#ffffff'];
+    const colors = ['#f5deb3', '#e8c9a0', '#d4a574', '#c68642', '#8d5524', '#4a2912', '#ffe4c4', '#deb887', '#bc8f8f', '#ffffff'];
     const colorGrid = document.getElementById('color-grid');
     colors.forEach(c => {
       const div = document.createElement('div');
       div.className = 'color-swatch';
       div.style.background = c;
       div.onclick = () => {
-        gsap.to(skinMaterial.color, { ...new THREE.Color(c), duration: 0.5 });
+        const col = new THREE.Color(c);
+        gsap.to(skinMaterial.color, { r: col.r, g: col.g, b: col.b, duration: 0.5 });
         document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
         div.classList.add('active');
       };
       colorGrid.appendChild(div);
     });
 
-    // UI Sliders
     document.getElementById('param-muscle').oninput = (e) => {
       const v = e.target.value;
       document.getElementById('val-muscle').textContent = Math.round(v * 100) + '%';
-      bodyParts.scale.set(1 + v * 0.1, 1, 1 + v * 0.1); // Simple bulk morph
+      bodyParts.scale.set(1 + v * 0.1, 1, 1 + v * 0.1);
     };
 
     document.getElementById('param-light').oninput = (e) => {
       mainLight.intensity = e.target.value * 10;
+      rimLight.intensity = e.target.value * 20;
     };
 
     document.getElementById('hide-sidebar-btn').onclick = () => {
       document.getElementById('sidebar').classList.toggle('hidden');
     };
 
-    // ── Loop ────────────────────────────────────────────────────────────
     function animate() {
       requestAnimationFrame(animate);
-
+      const t = performance.now() * 0.001;
       if (!isDrawing) {
-        // Subtle breathing animation
-        const t = performance.now() * 0.001;
-        anatomy.spine[3].scale.z = 1 + Math.sin(t) * 0.02;
-        anatomy.limbs.shoulders.position.y += Math.sin(t) * 0.0005;
+        anatomy.spine[2].scale.z += Math.sin(t) * 0.0005;
       }
-
       controls.update();
       renderer.render(scene, camera);
     }
 
-    // Final Init
     setTimeout(() => {
       document.getElementById('loading').style.opacity = '0';
       setTimeout(() => document.getElementById('loading').remove(), 500);
       animate();
     }, 1200);
-
   </script>
 </body>
 
