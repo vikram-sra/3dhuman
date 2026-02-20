@@ -4,9 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>AnatomyPro - 3D Human Gesture Lab</title>
+  <title>AnatomyPro 5.0 - Organic Lab</title>
 
-  <!-- Modern Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
@@ -14,14 +13,14 @@
 
   <style>
     :root {
-      --bg: #030303;
-      --panel-bg: rgba(10, 10, 15, 0.7);
+      --bg: #030305;
+      --panel-bg: rgba(10, 10, 18, 0.75);
       --accent: #6366f1;
       --accent-glow: rgba(99, 102, 241, 0.5);
       --text: #ffffff;
       --text-dim: #94a3b8;
       --border: rgba(255, 255, 255, 0.1);
-      --glass: rgba(255, 255, 255, 0.03);
+      --glass: rgba(255, 255, 255, 0.05);
     }
 
     * {
@@ -39,7 +38,6 @@
       touch-action: none;
     }
 
-    /* Fullscreen Canvas */
     #c {
       position: fixed;
       top: 0;
@@ -50,7 +48,6 @@
       cursor: crosshair;
     }
 
-    /* Modern UI Overlay */
     .overlay {
       position: fixed;
       top: 0;
@@ -62,13 +59,6 @@
       display: flex;
       flex-direction: column;
       padding: 24px;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      pointer-events: none;
     }
 
     .brand {
@@ -91,14 +81,14 @@
     }
 
     .brand span {
-      font-size: 12px;
-      color: var(--text-dim);
+      font-size: 10px;
+      color: var(--accent);
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      font-weight: 600;
+      font-weight: 800;
     }
 
-    /* Control Sidebar */
+    /* Sidebar */
     .sidebar {
       position: fixed;
       right: 24px;
@@ -125,15 +115,14 @@
     }
 
     .section-title {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       color: var(--text-dim);
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
 
-    /* Toggle Switches */
     .toggle-group {
       display: flex;
       background: var(--glass);
@@ -161,11 +150,10 @@
       box-shadow: 0 4px 12px var(--accent-glow);
     }
 
-    /* Master Controls */
     .control-item {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .slider-container {
@@ -190,17 +178,15 @@
       background: white;
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
 
     .value-display {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-dim);
       min-width: 24px;
       text-align: right;
     }
 
-    /* Action Buttons */
     .primary-btn {
       background: white;
       color: black;
@@ -218,74 +204,7 @@
     }
 
     .primary-btn:hover {
-      background: #f0f0f0;
       transform: translateY(-2px);
-    }
-
-    .primary-btn.active {
-      background: var(--accent);
-      color: white;
-    }
-
-    .secondary-btn {
-      background: var(--glass);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 12px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .secondary-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    /* Color Swatches */
-    .color-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-    }
-
-    .color-swatch {
-      aspect-ratio: 1;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: transform 0.2s;
-    }
-
-    .color-swatch:hover {
-      transform: scale(1.1);
-    }
-
-    .color-swatch.active {
-      border-color: white;
-    }
-
-    /* Status Tooltip */
-    #status-tip {
-      position: fixed;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(10px);
-      padding: 10px 20px;
-      border-radius: 50px;
-      font-size: 12px;
-      color: var(--text-dim);
-      border: 1px solid var(--border);
-      z-index: 10;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    #status-tip.visible {
-      opacity: 1;
     }
 
     /* Toolbar */
@@ -323,30 +242,28 @@
     .tool-btn.active {
       background: var(--accent);
       color: white;
-      border-color: var(--accent);
       box-shadow: 0 0 20px var(--accent-glow);
     }
 
-    /* Mobile Adaptivity */
-    @media (max-width: 768px) {
-      .sidebar {
-        bottom: 24px;
-        top: auto;
-        transform: none;
-        width: calc(100% - 48px);
-        left: 24px;
-      }
+    #status-tip {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: 12px;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
 
-      .sidebar.hidden {
-        transform: translateY(150%);
-      }
-
-      .toolbar {
-        top: 24px;
-        left: 50%;
-        transform: translateX(-50%);
-        flex-direction: row;
-      }
+    #status-tip.visible {
+      opacity: 1;
     }
 
     #loading {
@@ -375,6 +292,23 @@
         transform: rotate(360deg);
       }
     }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .color-swatch {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .color-swatch.active {
+      border-color: white;
+    }
   </style>
 </head>
 
@@ -382,36 +316,35 @@
 
   <div id="loading">
     <div class="spinner"></div>
-    <p style="margin-top: 20px; font-size: 14px; font-weight: 500;">Initializing Anatomy Engine...</p>
+    <p
+      style="margin-top: 20px; font-size: 13px; font-weight: 600; font-family: monospace; letter-spacing: 0.2em; text-transform: uppercase;">
+      Synthesizing Body Mass...</p>
   </div>
 
   <canvas id="c"></canvas>
 
   <div class="overlay">
-    <div class="top-bar">
-      <div class="brand">
-        <h1>AnatomyPro</h1>
-        <span>Gen 4.0</span>
-      </div>
+    <div class="brand">
+      <h1>AnatomyPro</h1>
+      <span>v5.0 Organic</span>
     </div>
 
     <div class="toolbar">
-      <div class="tool-btn active" id="tool-orbit" title="Orbit Camera">
+      <div class="tool-btn active" id="tool-orbit" title="Orbit Mode">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10" />
           <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
           <path d="M2 12h20" />
         </svg>
       </div>
-      <div class="tool-btn" id="tool-draw" title="Draw Gesture S-Curve">
+      <div class="tool-btn" id="tool-draw" title="Gesture Draw">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="m12 19 7-7 3 3-7 7-3-3Z" />
-          <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5Z" />
-          <path d="m2 2 5 5" />
-          <path d="m8.5 8.5 1 1" />
+          <path d="M12 19l7-7 3 3-7 7-3-3z" />
+          <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+          <path d="M2 2l5 5" />
         </svg>
       </div>
-      <div class="tool-btn" id="tool-reset" title="Reset Pose">
+      <div class="tool-btn" id="tool-reset" title="Reset Frame">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
           <path d="M3 3v5h5" />
@@ -421,7 +354,7 @@
 
     <div class="sidebar" id="sidebar">
       <div class="control-section">
-        <div class="section-title">Anatomy Preset</div>
+        <div class="section-title">Gender Morph</div>
         <div class="toggle-group">
           <button class="toggle-btn active" data-gender="male">Male</button>
           <button class="toggle-btn" data-gender="female">Female</button>
@@ -429,38 +362,39 @@
       </div>
 
       <div class="control-section">
-        <div class="section-title">Appearance</div>
-        <div class="color-grid" id="color-grid"></div>
+        <div class="section-title">View Mode</div>
+        <div class="toggle-group">
+          <button class="toggle-btn active" data-mode="skin">Skin</button>
+          <button class="toggle-btn" data-mode="xray">X-Ray</button>
+          <button class="toggle-btn" data-mode="muscle">Muscle</button>
+        </div>
       </div>
 
       <div class="control-section">
-        <div class="section-title">Musculature</div>
+        <div class="section-title">Anatomy Scale</div>
         <div class="control-item">
           <div class="slider-container">
-            <input type="range" id="param-muscle" min="0" max="1" step="0.01" value="0.5">
-            <span class="value-display" id="val-muscle">50%</span>
+            <input type="range" id="param-mass" min="0" max="1" step="0.01" value="0.5">
+            <span class="value-display" id="val-mass">50%</span>
           </div>
         </div>
       </div>
 
       <div class="control-section">
-        <div class="section-title">Atmosphere</div>
+        <div class="section-title">Lighting</div>
         <div class="control-item">
-          <span style="font-size: 12px; color: var(--text-dim);">Exposure</span>
           <div class="slider-container">
-            <input type="range" id="param-light" min="0" max="4" step="0.1" value="1.5">
+            <input type="range" id="param-light" min="0" max="1" step="0.01" value="0.4">
           </div>
         </div>
       </div>
 
       <button class="primary-btn" id="hide-sidebar-btn">
-        Optimize View
+        Focus Canvas
       </button>
     </div>
 
-    <div id="status-tip">
-      Hold SPACE and Draw an S-curve to deform the body
-    </div>
+    <div id="status-tip">Draw a curve to gesture the organic mass</div>
   </div>
 
   <script type="importmap">
@@ -476,6 +410,7 @@
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { MarchingCubes } from 'three/addons/objects/MarchingCubes.js';
     import gsap from 'gsap';
 
     // ── Setup ────────────────────────────────────────────────────────────
@@ -483,177 +418,126 @@
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.toneMapping = THREE.ReinhardToneMapping;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 1.5, 5);
+    camera.position.set(0, 1.5, 4.5);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.target.set(0, 1.1, 0);
+    controls.target.set(0, 1, 0);
 
     // ── Environments ──────────────────────────────────────────────────────
     const ambient = new THREE.AmbientLight(0xffffff, 0.2);
     scene.add(ambient);
 
-    const mainLight = new THREE.PointLight(0xffffff, 15, 20);
-    mainLight.position.set(3, 3, 4);
+    const mainLight = new THREE.PointLight(0xffffff, 20, 10);
+    mainLight.position.set(2, 3, 2);
     mainLight.castShadow = true;
-    mainLight.shadow.mapSize.set(1024, 1024);
     scene.add(mainLight);
 
-    const rimLight = new THREE.SpotLight(0x88aaff, 30, 10, 0.4);
-    rimLight.position.set(-3, 2, -4);
+    const rimLight = new THREE.SpotLight(0x6366f1, 40, 10, 0.5);
+    rimLight.position.set(-3, 2, -3);
     scene.add(rimLight);
 
-    // Modern Grid
-    const grid = new THREE.GridHelper(20, 40, 0x333333, 0x151515);
-    grid.position.y = -0.01;
+    const grid = new THREE.GridHelper(20, 40, 0x222222, 0x111111);
     scene.add(grid);
 
-    // ── Realistic Human Engine (8 Heads Proportions) ──────────────────
-    // Standard anatomical unit: 1 Head Height (H)
-    const H = 0.225; // 1.8m / 8 heads
-
-    const skinMaterial = new THREE.MeshStandardMaterial({
-      color: 0xd4a574,
-      roughness: 0.3,
-      metalness: 0.05,
-      emissive: 0x110805,
-      emissiveIntensity: 0.12
+    // ── Organic Engine (Marching Cubes) ──────────────────────────────────
+    const skinMat = new THREE.MeshStandardMaterial({
+      color: 0xe8c9a0, roughness: 0.35, metalness: 0.05,
+      emissive: 0x221111, emissiveIntensity: 0.1
     });
 
-    const bodyParts = new THREE.Group();
-    scene.add(bodyParts);
+    const xrayMat = new THREE.MeshPhysicalMaterial({
+      color: 0x6366f1, metalness: 1, roughness: 0.1,
+      transparent: true, opacity: 0.4, transmission: 0.9,
+      thickness: 1, emissive: 0x6366f1, emissiveIntensity: 0.5
+    });
 
-    const createCapsule = (radius, length, rw = 12, rh = 18) => {
-      const geo = new THREE.CapsuleGeometry(radius, length, rw, rh);
-      const mesh = new THREE.Mesh(geo, skinMaterial);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      return mesh;
-    };
+    const muscleMat = new THREE.MeshStandardMaterial({
+      color: 0xaa2222, roughness: 0.5, metalness: 0.1,
+      emissive: 0x330000, emissiveIntensity: 0.2
+    });
+
+    const resolution = 54;
+    const body = new MarchingCubes(resolution, skinMat, true, true, 100000);
+    body.scale.set(1.4, 2.2, 1.4);
+    body.position.y = 1.05;
+    scene.add(body);
 
     const anatomy = {
-      spine: [],
-      limbs: {},
-      genderProps: {
-        male: { shoulderWidth: H * 2.2, hipWidth: H * 1.5, torsoScale: 1.1, chestRadius: 0.13, hipRadius: 0.11 },
-        female: { shoulderWidth: H * 1.7, hipWidth: H * 1.9, torsoScale: 0.9, chestRadius: 0.11, hipRadius: 0.14 }
-      },
-      currentGender: 'male'
+      joints: [],
+      currentGender: 'male',
+      mode: 'skin',
+      mass: 0.5
     };
 
-    function buildAnatomy() {
-      bodyParts.clear();
-      anatomy.spine = [];
-      anatomy.limbs = {};
+    function initSkeleton() {
+      // 8-head proportional system joints
+      const setup = [
+        { id: 'head', pos: [0, 1.72, 0], s: 0.45 },
+        { id: 'neck', pos: [0, 1.58, 0], s: 0.35 },
+        { id: 'chest', pos: [0, 1.35, 0], s: 0.65 },
+        { id: 'abs', pos: [0, 1.1, 0], s: 0.55 },
+        { id: 'hips', pos: [0, 0.85, 0], s: 0.6 },
 
-      // Hips are at approx 4H = 0.9 units
-      const pelvicCenter = 0.9;
+        { id: 'shL', pos: [-0.3, 1.5, 0], s: 0.35 },
+        { id: 'elL', pos: [-0.35, 1.25, 0], s: 0.28 },
+        { id: 'wrL', pos: [-0.4, 1.0, 0], s: 0.2 },
 
-      // 1. Spine System
-      // Pelvis (0.9), Waist (1.1), Chest (1.35), Upper Chest (1.5)
-      const spineLayers = [
-        { r: 0.11, l: 0.12, y: 0.95 },  // Pelvis
-        { r: 0.09, l: 0.14, y: 1.15 },  // Lumbar
-        { r: 0.13, l: 0.22, y: 1.38 },  // Thoracic
-        { r: 0.07, l: 0.08, y: 1.58 }   // Neck
+        { id: 'shR', pos: [0.3, 1.5, 0], s: 0.35 },
+        { id: 'elR', pos: [0.3, 1.25, 0], s: 0.28 },
+        { id: 'wrR', pos: [0.35, 1.0, 0], s: 0.2 },
+
+        { id: 'hpL', pos: [-0.18, 0.8, 0], s: 0.48 },
+        { id: 'knL', pos: [-0.18, 0.4, 0], s: 0.38 },
+        { id: 'anL', pos: [-0.18, 0.05, 0], s: 0.28 },
+
+        { id: 'hpR', pos: [0.18, 0.8, 0], s: 0.48 },
+        { id: 'knR', pos: [0.18, 0.4, 0], s: 0.38 },
+        { id: 'anR', pos: [0.18, 0.05, 0], s: 0.28 }
       ];
 
-      spineLayers.forEach(layer => {
-        const seg = createCapsule(layer.r, layer.l);
-        seg.position.y = layer.y;
-        bodyParts.add(seg);
-        anatomy.spine.push(seg);
+      anatomy.joints = setup.map(s => ({
+        id: s.id,
+        pos: new THREE.Vector3(...s.pos),
+        strength: s.s
+      }));
+    }
+
+    initSkeleton();
+
+    function renderBody() {
+      body.reset();
+      const p = anatomy;
+
+      p.joints.forEach(j => {
+        // Map to world space of MarchingCubes cube (-1 to 1)
+        const x = (j.pos.x / 1.4) + 0.5;
+        const y = (j.pos.y / 2.2) + 0.1;
+        const z = (j.pos.z / 1.4) + 0.5;
+
+        let strength = j.strength * (0.5 + p.mass);
+
+        // Gender morphing logic
+        if (p.currentGender === 'female') {
+          if (j.id.includes('hp')) strength *= 1.35;
+          if (j.id.includes('sh')) strength *= 0.85;
+          if (j.id === 'chest') strength *= 0.7; // Tapered chest
+        } else {
+          if (j.id.includes('sh')) strength *= 1.25;
+          if (j.id.includes('chest')) strength *= 1.1;
+        }
+
+        body.addBall(x, y, z, strength, 8);
       });
-
-      // 2. Head (1.8 - H/2 = 1.68 center-ish)
-      const head = createCapsule(0.08, 0.12);
-      head.position.y = 1.72;
-      bodyParts.add(head);
-      anatomy.limbs.head = head;
-
-      // 3. Clavicles / Shoulders
-      const shoulders = createCapsule(0.05, 0.45);
-      shoulders.rotation.z = Math.PI / 2;
-      shoulders.position.y = 1.55;
-      bodyParts.add(shoulders);
-      anatomy.limbs.shoulders = shoulders;
-
-      // 4. Arms (Upper: 1.25H = 0.28, Lower: 1H = 0.22)
-      const buildArm = (side) => {
-        const upL = 0.28, loL = 0.24;
-        const group = new THREE.Group();
-        const upper = createCapsule(0.045, upL);
-        const elbow = new THREE.Group();
-        const lower = createCapsule(0.038, loL);
-        const hand = createCapsule(0.03, 0.08);
-
-        upper.position.y = -upL / 2;
-        elbow.position.y = -upL;
-        lower.position.y = -loL / 2;
-        hand.position.y = -loL - 0.04;
-
-        elbow.add(lower);
-        elbow.add(hand);
-        group.add(upper);
-        group.add(elbow);
-
-        const sideMult = anatomy.genderProps.male.shoulderWidth / 2;
-        group.position.set(side * sideMult, 1.55, 0);
-        bodyParts.add(group);
-        anatomy.limbs[side < 0 ? 'armL' : 'armR'] = { group, upper, elbow, lower };
-      };
-
-      buildArm(-1);
-      buildArm(1);
-
-      // 5. Legs (Upper: 2H = 0.45, Lower: 2H = 0.45)
-      const buildLeg = (side) => {
-        const upL = 0.45, loL = 0.42;
-        const group = new THREE.Group();
-        const upper = createCapsule(0.08, upL);
-        const knee = new THREE.Group();
-        const lower = createCapsule(0.06, loL);
-        const foot = createCapsule(0.045, 0.16);
-
-        upper.position.y = -upL / 2;
-        knee.position.y = -upL;
-        lower.position.y = -loL / 2;
-        foot.rotation.x = Math.PI / 2;
-        foot.position.set(0, -loL - 0.02, 0.08);
-
-        knee.add(lower);
-        knee.add(foot);
-        group.add(upper);
-        group.add(knee);
-
-        group.position.set(side * 0.15, 0.9, 0);
-        bodyParts.add(group);
-        anatomy.limbs[side < 0 ? 'legL' : 'legR'] = { group, upper, knee, lower };
-      };
-
-      buildLeg(-1);
-      buildLeg(1);
     }
 
-    buildAnatomy();
-
-    // Reset Pose
-    function resetPose() {
-      buildAnatomy(); // Re-sync structure
-      morphTo(anatomy.currentGender);
-
-      // Final polish animation
-      gsap.from(bodyParts.scale, { x: 0.8, z: 0.8, y: 0.8, duration: 1, ease: "elastic.out(1, 0.5)" });
-    }
-
-    // ── Gesture Lab (S-Curve Magic) ────────────────────────────────────
+    // ── Interaction System ─────────────────────────────────────────────
     let isDrawing = false;
     let drawPoints = [];
     const drawLineGeo = new THREE.BufferGeometry();
@@ -663,46 +547,20 @@
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
-    const drawingPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
-    function startDrawing(e) {
-      isDrawing = true;
-      drawPoints = [];
-      drawLineMat.opacity = 1;
-      updateDraw(e);
-      controls.enabled = false;
-    }
-
-    function updateDraw(e) {
+    function handleDraw(e) {
       if (!isDrawing) return;
       const rect = canvas.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
       raycaster.setFromCamera(mouse, camera);
-      const intersect = new THREE.Vector3();
-      raycaster.ray.intersectPlane(drawingPlane, intersect);
-
-      if (drawPoints.length === 0 || intersect.distanceTo(drawPoints[drawPoints.length - 1]) > 0.04) {
-        drawPoints.push(intersect);
-      }
-
-      if (drawPoints.length > 2) {
+      const hit = new THREE.Vector3();
+      raycaster.ray.intersectPlane(plane, hit);
+      if (drawPoints.length === 0 || hit.distanceTo(drawPoints[drawPoints.length - 1]) > 0.05) {
+        drawPoints.push(hit);
         drawLineGeo.setFromPoints(drawPoints);
       }
-    }
-
-    function endDrawing() {
-      if (!isDrawing) return;
-      isDrawing = false;
-      controls.enabled = true;
-      applyPosture();
-
-      gsap.to(drawLineMat, {
-        opacity: 0, duration: 1, onComplete: () => {
-          drawLineGeo.setFromPoints([]);
-        }
-      });
     }
 
     function applyPosture() {
@@ -710,133 +568,87 @@
       const curve = new THREE.CatmullRomCurve3(drawPoints);
       const isTopDown = drawPoints[0].y > drawPoints[drawPoints.length - 1].y;
 
-      // Update Spine along curve
-      anatomy.spine.forEach((seg, i) => {
-        const t = isTopDown ? (0.2 + i * 0.15) : (0.8 - i * 0.15);
-        if (t < 0 || t > 1) return;
-
-        const pos = curve.getPoint(t);
-        const tangent = curve.getTangent(t);
-
-        gsap.to(seg.position, { x: pos.x, y: pos.y, z: pos.z, duration: 0.8 });
-        const lookAt = pos.clone().add(tangent);
-        seg.lookAt(lookAt);
-        seg.rotateX(Math.PI / 2);
+      anatomy.joints.forEach(j => {
+        const t = THREE.MathUtils.clamp(j.pos.y / 1.8, 0, 1);
+        const target = curve.getPoint(isTopDown ? 1 - t : t);
+        gsap.to(j.pos, { x: target.x, y: target.y, z: target.z, duration: 1.2, ease: "elastic.out(1, 0.8)" });
       });
-
-      // Align Extremities
-      const headT = isTopDown ? 0.05 : 0.95;
-      const shoulderT = isTopDown ? 0.2 : 0.8;
-
-      gsap.to(anatomy.limbs.head.position, { ...curve.getPoint(headT), duration: 0.8 });
-      const sPos = curve.getPoint(shoulderT);
-      gsap.to(anatomy.limbs.shoulders.position, { ...sPos, duration: 0.8 });
-
-      const sTangent = curve.getTangent(shoulderT);
-      anatomy.limbs.shoulders.lookAt(sPos.clone().add(sTangent));
-      anatomy.limbs.shoulders.rotateX(Math.PI / 2);
     }
 
-    // ── Interaction Logic ──────────────────────────────────────────────
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    // Tooling
+    let currentTool = 'orbit';
+    document.getElementById('tool-orbit').onclick = () => { currentTool = 'orbit'; updateUI(); };
+    document.getElementById('tool-draw').onclick = () => { currentTool = 'draw'; updateUI(); };
+    document.getElementById('tool-reset').onclick = () => { resetFrame(); };
 
-    document.getElementById('tool-orbit').onclick = () => switchTool('orbit');
-    document.getElementById('tool-draw').onclick = () => switchTool('draw');
-    document.getElementById('tool-reset').onclick = () => { resetPose(); switchTool('orbit'); };
-
-    function switchTool(t) {
-      currentTool = t;
-      document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById('tool-' + t).classList.add('active');
-      const tip = document.getElementById('status-tip');
-      if (t === 'draw') {
-        tip.textContent = "Draw a fluid S-curve to pose the figure";
-        tip.classList.add('visible');
-      } else {
-        tip.classList.remove('visible');
-      }
+    function updateUI() {
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.toggle('active', b.id.includes(currentTool)));
+      document.getElementById('status-tip').classList.toggle('visible', currentTool === 'draw');
+      controls.enabled = currentTool === 'orbit';
     }
 
-    canvas.addEventListener('mousedown', (e) => { if (currentTool === 'draw') startDrawing(e); });
-    window.addEventListener('mousemove', (e) => { if (isDrawing) updateDraw(e); });
-    window.addEventListener('mouseup', endDrawing);
+    canvas.onmousedown = (e) => { if (currentTool === 'draw') { isDrawing = true; drawPoints = []; drawLineMat.opacity = 1; } };
+    window.onmousemove = (e) => handleDraw(e);
+    window.onmouseup = () => { if (isDrawing) { applyPosture(); isDrawing = false; gsap.to(drawLineMat, { opacity: 0, duration: 1 }); } };
 
-    document.querySelectorAll('.toggle-btn').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const gender = btn.dataset.gender;
-        anatomy.currentGender = gender;
-        morphTo(gender);
+    function resetFrame() {
+      const base = [
+        [0, 1.72, 0], [0, 1.58, 0], [0, 1.35, 0], [0, 1.1, 0], [0, 0.85, 0],
+        [-0.3, 1.5, 0], [-0.35, 1.25, 0], [-0.4, 1.0, 0],
+        [0.3, 1.5, 0], [0.3, 1.25, 0], [0.35, 1.0, 0],
+        [-0.18, 0.8, 0], [-0.18, 0.4, 0], [-0.18, 0.05, 0],
+        [0.18, 0.8, 0], [0.18, 0.4, 0], [0.18, 0.05, 0]
+      ];
+      anatomy.joints.forEach((j, i) => gsap.to(j.pos, { x: base[i][0], y: base[i][1], z: base[i][2], duration: 1, ease: "power3.inOut" }));
+    }
+
+    // Sidebar
+    document.querySelectorAll('.toggle-btn').forEach(b => {
+      b.onclick = () => {
+        const p = b.parentElement;
+        p.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+        b.classList.add('active');
+        if (b.dataset.gender) anatomy.currentGender = b.dataset.gender;
+        if (b.dataset.mode) {
+          anatomy.mode = b.dataset.mode;
+          body.material = b.dataset.mode === 'skin' ? skinMat : (b.dataset.mode === 'xray' ? xrayMat : muscleMat);
+        }
       };
     });
 
-    function morphTo(gender) {
-      const p = anatomy.genderProps[gender];
-      gsap.to(anatomy.limbs.shoulders.scale, { x: p.shoulderWidth / 0.45, duration: 1 });
-
-      anatomy.spine.forEach((seg, i) => {
-        if (i === 0) gsap.to(seg.scale, { x: 1.2 * (gender === 'female' ? 1.2 : 0.9), z: 1.2 * (gender === 'female' ? 1.2 : 0.9), duration: 1 });
-        if (i === 2) gsap.to(seg.scale, { x: 1.1 * (gender === 'male' ? 1.2 : 0.9), z: 1.1 * (gender === 'male' ? 1.2 : 0.9), duration: 1 });
-      });
-
-      gsap.to(anatomy.limbs.armL.group.position, { x: -p.shoulderWidth / 2, duration: 1 });
-      gsap.to(anatomy.limbs.armR.group.position, { x: p.shoulderWidth / 2, duration: 1 });
-
-      const targetCol = gender === 'female' ? new THREE.Color(0xf5deb3) : new THREE.Color(0xd4a574);
-      gsap.to(skinMaterial.color, { r: targetCol.r, g: targetCol.g, b: targetCol.b, duration: 1 });
-    }
-
-    // Colors
-    const colors = ['#f5deb3', '#e8c9a0', '#d4a574', '#c68642', '#8d5524', '#4a2912', '#ffe4c4', '#deb887', '#bc8f8f', '#ffffff'];
-    const colorGrid = document.getElementById('color-grid');
-    colors.forEach(c => {
-      const div = document.createElement('div');
-      div.className = 'color-swatch';
-      div.style.background = c;
-      div.onclick = () => {
-        const col = new THREE.Color(c);
-        gsap.to(skinMaterial.color, { r: col.r, g: col.g, b: col.b, duration: 0.5 });
-        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-        div.classList.add('active');
-      };
-      colorGrid.appendChild(div);
-    });
-
-    document.getElementById('param-muscle').oninput = (e) => {
-      const v = e.target.value;
-      document.getElementById('val-muscle').textContent = Math.round(v * 100) + '%';
-      bodyParts.scale.set(1 + v * 0.1, 1, 1 + v * 0.1);
+    document.getElementById('param-mass').oninput = (e) => {
+      anatomy.mass = parseFloat(e.target.value);
+      document.getElementById('val-mass').textContent = Math.round(e.target.value * 100) + '%';
     };
 
     document.getElementById('param-light').oninput = (e) => {
-      mainLight.intensity = e.target.value * 10;
-      rimLight.intensity = e.target.value * 20;
+      mainLight.intensity = e.target.value * 40;
     };
 
     document.getElementById('hide-sidebar-btn').onclick = () => {
       document.getElementById('sidebar').classList.toggle('hidden');
     };
 
+    // ── Loop ────────────────────────────────────────────────────────────
     function animate() {
       requestAnimationFrame(animate);
-      const t = performance.now() * 0.001;
-      if (!isDrawing) {
-        anatomy.spine[2].scale.z += Math.sin(t) * 0.0005;
-      }
+      renderBody();
       controls.update();
       renderer.render(scene, camera);
     }
+
+    window.onresize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
 
     setTimeout(() => {
       document.getElementById('loading').style.opacity = '0';
       setTimeout(() => document.getElementById('loading').remove(), 500);
       animate();
-    }, 1200);
+    }, 1500);
+
   </script>
 </body>
 
