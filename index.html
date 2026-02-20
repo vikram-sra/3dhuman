@@ -4,24 +4,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>AnatomyPro 6.0 - Advanced Bio-Mechanical Lab</title>
+  <title>AnatomyPro 7.0 - Hyper-Realistic Studio</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet">
 
   <style>
     :root {
-      --bg: #010103;
-      --panel-bg: rgba(10, 10, 15, 0.85);
-      --accent: #c084fc;
-      --accent-secondary: #6366f1;
-      --accent-glow: rgba(192, 132, 252, 0.4);
+      --bg: #050508;
+      --panel-bg: rgba(12, 12, 20, 0.85);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.4);
       --text: #ffffff;
       --text-dim: #94a3b8;
       --border: rgba(255, 255, 255, 0.08);
-      --glass: rgba(255, 255, 255, 0.03);
+      --glass: rgba(255, 255, 255, 0.02);
     }
 
     * {
@@ -34,7 +33,7 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Outfit', sans-serif;
+      font-family: 'Public Sans', sans-serif;
       overflow: hidden;
       touch-action: none;
     }
@@ -46,36 +45,32 @@
       width: 100vw;
       height: 100vh;
       z-index: 0;
-      cursor: crosshair;
     }
 
-    /* Lab UI Layer */
-    .lab-ui {
+    /* UI Overlay */
+    .studio-ui {
       position: fixed;
       inset: 0;
       pointer-events: none;
       z-index: 10;
+      padding: 40px;
       display: flex;
       flex-direction: column;
-      padding: 32px;
     }
 
     .header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      pointer-events: auto;
+      align-items: flex-start;
     }
 
     .logo {
       background: var(--panel-bg);
-      backdrop-filter: blur(24px);
+      backdrop-filter: blur(20px);
       padding: 16px 24px;
       border-radius: 20px;
       border: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+      pointer-events: auto;
     }
 
     .logo h1 {
@@ -85,37 +80,23 @@
       color: white;
     }
 
-    .logo .badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .logo .badge span {
+    .logo span {
       font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
+      font-weight: 700;
       color: var(--accent);
-      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
     }
 
-    .logo .badge .dot {
-      width: 6px;
-      height: 6px;
-      background: #22c55e;
-      border-radius: 50%;
-      box-shadow: 0 0 8px #22c55e;
-    }
-
-    /* Sidebar Controls */
-    .controls-panel {
+    /* Controls Sidebar */
+    .sidebar {
       position: fixed;
-      right: 32px;
+      right: 40px;
       top: 50%;
       transform: translateY(-50%);
-      width: 320px;
+      width: 340px;
       background: var(--panel-bg);
-      backdrop-filter: blur(40px);
+      backdrop-filter: blur(30px);
       border: 1px solid var(--border);
       border-radius: 32px;
       padding: 32px;
@@ -123,35 +104,29 @@
       flex-direction: column;
       gap: 24px;
       pointer-events: auto;
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
       transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .controls-panel.collapsed {
-      transform: translateY(-50%) translateX(400px);
+    .sidebar.hidden {
+      transform: translateY(-50%) translateX(420px);
       opacity: 0;
-    }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
     }
 
     .section-title {
       font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       color: var(--text-dim);
+      margin-bottom: 8px;
     }
 
     .tab-group {
       display: flex;
       background: var(--glass);
-      padding: 4px;
-      border-radius: 14px;
+      padding: 5px;
+      border-radius: 16px;
       border: 1px solid var(--border);
     }
 
@@ -162,113 +137,131 @@
       background: transparent;
       color: var(--text-dim);
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      border-radius: 10px;
-      transition: 0.2s;
+      border-radius: 12px;
+      transition: 0.3s;
     }
 
     .tab-btn.active {
       background: white;
       color: black;
-      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
     }
 
-    .slider-box {
+    .control-row {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .label-row {
+    .label-box {
       display: flex;
       justify-content: space-between;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--text-dim);
     }
 
     input[type="range"] {
+      -webkit-appearance: none;
       width: 100%;
       height: 4px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 2px;
-      appearance: none;
     }
 
     input[type="range"]::-webkit-slider-thumb {
-      appearance: none;
-      width: 14px;
-      height: 14px;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
       background: white;
       border-radius: 50%;
       cursor: pointer;
-      border: 2px solid var(--accent);
+      border: 3px solid var(--accent);
     }
 
-    .primary-btn {
-      background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .swatch {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.2s;
+    }
+
+    .swatch.active {
+      border-color: white;
+      transform: scale(1.1);
+    }
+
+    .action-btn {
+      background: var(--accent);
       color: white;
       border: none;
       padding: 16px;
       border-radius: 16px;
       font-weight: 700;
-      font-size: 14px;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: 0.3s;
       margin-top: 8px;
     }
 
-    .primary-btn:hover {
+    .action-btn:hover {
+      background: #60a5fa;
       transform: translateY(-2px);
-      filter: brightness(1.1);
-      box-shadow: 0 8px 32px var(--accent-glow);
+      box-shadow: 0 10px 30px var(--accent-glow);
     }
 
-    /* Floating Toolbar */
+    /* Bottom Toolbar */
     .toolbar {
       position: fixed;
-      left: 32px;
-      top: 50%;
-      transform: translateY(-50%);
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      flex-direction: column;
       gap: 12px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      padding: 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
       pointer-events: auto;
     }
 
     .tool-btn {
-      width: 56px;
-      height: 56px;
-      background: var(--panel-bg);
-      backdrop-filter: blur(24px);
-      border: 1px solid var(--border);
-      border-radius: 18px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--text-dim);
-      cursor: pointer;
-      transition: 0.3s;
+      transition: 0.2s;
     }
 
     .tool-btn:hover {
+      background: var(--glass);
       color: white;
-      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .tool-btn.active {
       background: var(--accent);
       color: white;
-      border-color: var(--accent);
-      box-shadow: 0 0 20px var(--accent-glow);
     }
 
-    /* Loading Screen */
     #loading {
       position: fixed;
       inset: 0;
-      background: #000;
+      background: black;
       z-index: 9999;
       display: flex;
       flex-direction: column;
@@ -276,64 +269,24 @@
       justify-content: center;
     }
 
-    .loader-ring {
-      width: 60px;
-      height: 60px;
-      border: 3px solid rgba(255, 255, 255, 0.05);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
+    .progress-bar {
+      width: 200px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
     }
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    #status-msg {
-      position: fixed;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(16px);
-      padding: 12px 24px;
-      border-radius: 40px;
-      font-size: 12px;
-      color: var(--text-dim);
-      border: 1px solid var(--border);
-      pointer-events: none;
-      opacity: 0;
-      transition: 0.3s;
-    }
-
-    #status-msg.visible {
-      opacity: 1;
-      transform: translateX(-50%) translateY(-10px);
-    }
-
-    .color-swatches {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .swatch {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: 0.2s;
-    }
-
-    .swatch:hover {
-      transform: scale(1.1);
-    }
-
-    .swatch.active {
-      border-color: white;
+    .progress-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.3s;
     }
   </style>
 </head>
@@ -341,52 +294,28 @@
 <body>
 
   <div id="loading">
-    <div class="loader-ring"></div>
+    <p style="font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; font-size: 14px;">AnatomyPro 7.0</p>
+    <div class="progress-bar">
+      <div class="progress-fill" id="load-progress"></div>
+    </div>
     <p
-      style="margin-top: 24px; font-weight: 700; color: #fff; letter-spacing: 0.2em; text-transform: uppercase; font-size: 12px;">
-      AnatomyPro Live Engine Initialization</p>
+      style="margin-top: 15px; font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em;">
+      Loading High-Fidelity Bio-Assets</p>
   </div>
 
   <canvas id="c"></canvas>
 
-  <div class="lab-ui">
+  <div class="studio-ui">
     <div class="header">
       <div class="logo">
-        <h1>AnatomyPro</h1>
-        <div class="badge">
-          <div class="dot"></div>
-          <span>v6.0 Advanced Bio-Engine</span>
-        </div>
+        <h1>Anatomy Studio</h1>
+        <span>Gen-7 Hyper Reality</span>
       </div>
     </div>
 
-    <div class="toolbar">
-      <div class="tool-btn active" id="tool-orbit" title="Orbit Control">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-          <path d="M2 12h20" />
-        </svg>
-      </div>
-      <div class="tool-btn" id="tool-pose" title="Pose Mode">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 18V6" />
-          <path d="M16 12H8" />
-          <path d="M12 6L8 10" />
-          <path d="M12 6l4 4" />
-        </svg>
-      </div>
-      <div class="tool-btn" id="tool-reset" title="Calibrate">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-          <path d="M3 3v5h5" />
-        </svg>
-      </div>
-    </div>
-
-    <div class="controls-panel" id="sidebar">
+    <div class="sidebar" id="sidebar">
       <div class="section">
-        <div class="section-head"><span class="section-title">Anatomy Preset</span></div>
+        <div class="section-title">Gender Phenotype</div>
         <div class="tab-group" id="gender-tabs">
           <button class="tab-btn active" data-gender="male">Phenotype M</button>
           <button class="tab-btn" data-gender="female">Phenotype F</button>
@@ -394,35 +323,56 @@
       </div>
 
       <div class="section">
-        <div class="section-head"><span class="section-title">Visibility Mode</span></div>
-        <div class="tab-group" id="mode-tabs">
-          <button class="tab-btn active" data-mode="skin">Dermal</button>
-          <button class="tab-btn" data-mode="muscle">Musculo</button>
-          <button class="tab-btn" data-mode="skeletal">X-Ray</button>
+        <div class="section-title">Anatomical Metrics</div>
+        <div class="control-row">
+          <div class="label-box"><span>Hypertrophy (Muscle)</span><span id="label-muscle">50%</span></div>
+          <input type="range" id="slider-muscle" min="0" max="1" step="0.01" value="0.5">
         </div>
-      </div>
-
-      <div class="section">
-        <div class="section-head"><span class="section-title">Body Metrics</span></div>
-        <div class="slider-box">
-          <div class="label-row"><span>Musculature Bulk</span><span id="label-muscle">45%</span></div>
-          <input type="range" id="slider-muscle" min="0" max="1" step="0.01" value="0.45">
-        </div>
-        <div class="slider-box" style="margin-top: 16px;">
-          <div class="label-row"><span>Adipose Index</span><span id="label-adipose">20%</span></div>
+        <div class="control-row" style="margin-top: 16px;">
+          <div class="label-box"><span>Adipose (Soft Tissue)</span><span id="label-adipose">20%</span></div>
           <input type="range" id="slider-adipose" min="0" max="1" step="0.01" value="0.2">
         </div>
       </div>
 
       <div class="section">
-        <div class="section-head"><span class="section-title">Skintone Spectrum</span></div>
-        <div class="color-swatches" id="skin-swatches"></div>
+        <div class="section-title">Visual Modes</div>
+        <div class="tab-group" id="mode-tabs">
+          <button class="tab-btn active" data-mode="skin">Kinetic</button>
+          <button class="tab-btn" data-mode="skeletal">Neural</button>
+        </div>
       </div>
 
-      <button class="primary-btn" id="optimize-view">Maximize Workspace</button>
+      <div class="section">
+        <div class="section-title">Ethnicity Spectrum</div>
+        <div class="color-grid" id="skin-swatches"></div>
+      </div>
+
+      <button class="action-btn" id="hide-sidebar-btn">Toggle Interface</button>
     </div>
 
-    <div id="status-msg">Precision Posing Mode Active: Click and Drag to Shape Gesture</div>
+    <div class="toolbar">
+      <button class="tool-btn active" id="tool-orbit" title="Orbit Model">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+          <path d="M2 12h20" />
+        </svg>
+      </button>
+      <button class="tool-btn" id="tool-gesture" title="Gesture Pose">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 18V6" />
+          <path d="M16 12H8" />
+          <path d="M12 6L8 10" />
+          <path d="M12 6l4 4" />
+        </svg>
+      </button>
+      <button class="tool-btn" id="tool-reset" title="Calibrate Frame">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+        </svg>
+      </button>
+    </div>
   </div>
 
   <script type="importmap">
@@ -438,316 +388,295 @@
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { MarchingCubes } from 'three/addons/objects/MarchingCubes.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import gsap from 'gsap';
 
-    // ── Engine Core ──────────────────────────────────────────────────────
+    // ── Studio Core ──────────────────────────────────────────────────────
     const canvas = document.getElementById('c');
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 1.5, 4.2);
+    scene.background = null; // Background handled by CSS
+
+    // Gradient Background Plane
+    const bgGeometry = new THREE.SphereGeometry(15, 32, 24);
+    const bgMaterial = new THREE.MeshBasicMaterial({
+      color: 0x050508, side: THREE.BackSide,
+      transparent: true, opacity: 0.9
+    });
+    const bgMesh = new THREE.Mesh(bgGeometry, bgMaterial);
+    scene.add(bgMesh);
+
+    const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.4, 4.5);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.target.set(0, 1.1, 0);
 
-    // ── Lighting Architecture ────────────────────────────────────────────
-    const amb = new THREE.AmbientLight(0xffffff, 0.2);
-    scene.add(amb);
-
-    const keyLight = new THREE.SpotLight(0xffffff, 60, 15, 0.4);
-    keyLight.position.set(4, 5, 4);
+    // ── Professional Studio Lighting ─────────────────────────────────────
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3);
+    keyLight.position.set(5, 5, 5);
     keyLight.castShadow = true;
+    keyLight.shadow.mapSize.set(2048, 2048);
+    keyLight.shadow.camera.near = 1;
+    keyLight.shadow.camera.far = 15;
+    keyLight.shadow.camera.left = -3;
+    keyLight.shadow.camera.right = 3;
+    keyLight.shadow.camera.top = 3;
+    keyLight.shadow.camera.bottom = -1;
     scene.add(keyLight);
 
-    const fillLight = new THREE.PointLight(0x6366f1, 20, 10);
-    fillLight.position.set(-3, 1, 2);
+    const fillLight = new THREE.DirectionalLight(0x88aaff, 1.5);
+    fillLight.position.set(-5, 2, 2);
     scene.add(fillLight);
 
-    const rimLight = new THREE.SpotLight(0xc084fc, 80, 20, 0.3);
-    rimLight.position.set(-5, 3, -5);
+    const rimLight = new THREE.DirectionalLight(0xc084fc, 2.5);
+    rimLight.position.set(0, 3, -8);
     scene.add(rimLight);
 
-    const grid = new THREE.GridHelper(30, 60, 0x111111, 0x050505);
-    scene.add(grid);
+    const floor = new THREE.Mesh(
+      new THREE.CircleGeometry(10, 64),
+      new THREE.MeshStandardMaterial({ color: 0x050508, roughness: 0.1, metalness: 0.5 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
 
-    // ── Bio-Mechanical Materials ─────────────────────────────────────────
-    const skinMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0xd4a574,
-      roughness: 0.28,
-      metalness: 0.1,
-      reflectivity: 0.5,
-      clearcoat: 0.1,
-      transmission: 0,
-      thickness: 1
-    });
+    const studioGrid = new THREE.GridHelper(20, 40, 0x111111, 0x0a0a0a);
+    studioGrid.position.y = 0.01;
+    scene.add(studioGrid);
 
-    const muscleMaterial = new THREE.MeshStandardMaterial({
-      color: 0xa82020,
-      roughness: 0.45,
-      metalness: 0.2,
-      emissive: 0x440000,
-      emissiveIntensity: 0.2
-    });
+    // ── Bio-Engine 7.0 (Realistic Human Hybrid) ─────────────────────────
+    // We use a high-quality human mannequin rig (Soldier/Xbot mix)
+    // and overlay a dynamic biomechanical mass system.
 
-    const xrayMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x6366f1,
-      transparent: true,
-      opacity: 0.35,
-      metalness: 0.9,
-      roughness: 0.1,
-      transmission: 0.9,
-      thickness: 0.5,
-      emissive: 0x6366f1,
-      emissiveIntensity: 0.6
-    });
+    const loader = new GLTFLoader();
+    let humanModel = null;
+    let skeleton = null;
+    let bones = {};
 
-    // ── Anatomy System (Advanced Metaballs) ──────────────────────────────
-    const resolution = 64; // High Detail
-    const body = new MarchingCubes(resolution, skinMaterial, true, true, 1000000);
-    body.position.y = 1.1;
-    body.scale.set(1.4, 2.3, 1.4);
-    scene.add(body);
-
-    const state = {
+    const studioState = {
       gender: 'male',
       view: 'skin',
-      muscleBulk: 0.45,
+      muscle: 0.5,
       adipose: 0.2,
-      joints: []
+      skinColor: 0xd4a574
     };
 
-    function initSkeleton() {
-      // Standardized 8-head skeleton with specific muscle/adipose influence centers
-      const framework = [
-        { id: 'head', pos: [0, 1.75, 0], strength: 0.45 },
-        { id: 'neck', pos: [0, 1.58, 0], strength: 0.38 },
-        { id: 'traps', pos: [0, 1.52, -0.05], strength: 0.42 }, // Muscle influence
-        { id: 'chest', pos: [0, 1.38, 0], strength: 0.62 },
-        { id: 'pecL', pos: [-0.15, 1.4, 0.1], strength: 0.35 },
-        { id: 'pecR', pos: [0.15, 1.4, 0.1], strength: 0.35 },
-        { id: 'abs_upper', pos: [0, 1.2, 0.05], strength: 0.48 },
-        { id: 'abs_lower', pos: [0, 1.0, 0.05], strength: 0.52 },
-        { id: 'hips', pos: [0, 0.85, 0], strength: 0.62 },
-        { id: 'gluteL', pos: [-0.15, 0.8, -0.1], strength: 0.45 },
-        { id: 'gluteR', pos: [0.15, 0.8, -0.1], strength: 0.45 },
+    // Human Model CDN Source (Stable Three.js Sample)
+    const MODEL_URLS = {
+      male: 'https://threejs.org/examples/models/gltf/Soldier.glb',
+      female: 'https://threejs.org/examples/models/gltf/Xbot.glb'
+    };
 
-        // Arm Left
-        { id: 'shL', pos: [-0.28, 1.52, 0], strength: 0.42 },
-        { id: 'biL', pos: [-0.35, 1.3, 0], strength: 0.32 },
-        { id: 'elL', pos: [-0.38, 1.15, 0], strength: 0.3 },
-        { id: 'faL', pos: [-0.42, 0.95, 0], strength: 0.28 },
-        { id: 'wrL', pos: [-0.45, 0.8, 0], strength: 0.22 },
+    function loadModel(gender) {
+      if (humanModel) scene.remove(humanModel);
 
-        // Arm Right
-        { id: 'shR', pos: [0.28, 1.52, 0], strength: 0.42 },
-        { id: 'biR', pos: [0.35, 1.3, 0], strength: 0.32 },
-        { id: 'elR', pos: [0.38, 1.15, 0], strength: 0.3 },
-        { id: 'faR', pos: [0.42, 0.95, 0], strength: 0.28 },
-        { id: 'wrR', pos: [0.45, 0.8, 0], strength: 0.22 },
+      const progressFill = document.getElementById('load-progress');
 
-        // Leg Left
-        { id: 'hpL', pos: [-0.18, 0.8, 0], strength: 0.52 },
-        { id: 'thL', pos: [-0.18, 0.55, 0], strength: 0.48 },
-        { id: 'knL', pos: [-0.18, 0.35, 0], strength: 0.4 },
-        { id: 'cfL', pos: [-0.18, 0.15, 0], strength: 0.38 },
-        { id: 'anL', pos: [-0.18, -0.05, 0], strength: 0.3 },
+      loader.load(MODEL_URLS[gender], (gltf) => {
+        humanModel = gltf.scene;
+        humanModel.traverse(child => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            child.material = new THREE.MeshStandardMaterial({
+              color: studioState.skinColor,
+              roughness: 0.4,
+              metalness: 0.05,
+              emissive: 0x221111,
+              emissiveIntensity: 0.1
+            });
+            // Hide weapons/armor if soldier
+            if (child.name.toLowerCase().includes('weapon') || child.name.toLowerCase().includes('hat')) {
+              child.visible = false;
+            }
+          }
+        });
 
-        // Leg Right
-        { id: 'hpR', pos: [0.18, 0.8, 0], strength: 0.52 },
-        { id: 'thR', pos: [0.18, 0.55, 0], strength: 0.48 },
-        { id: 'knR', pos: [0.18, 0.35, 0], strength: 0.4 },
-        { id: 'cfR', pos: [0.18, 0.15, 0], strength: 0.38 },
-        { id: 'anR', pos: [0.18, -0.05, 0], strength: 0.3 }
-      ];
+        scene.add(humanModel);
+        skeleton = new THREE.SkeletonHelper(humanModel);
+        skeleton.visible = false;
+        scene.add(skeleton);
 
-      state.joints = framework.map(f => ({
-        id: f.id,
-        origin: new THREE.Vector3(...f.pos),
-        pos: new THREE.Vector3(...f.pos),
-        strength: f.strength
-      }));
-    }
+        // Map common bones for posing
+        bones = {};
+        humanModel.traverse(b => {
+          if (b.isBone) {
+            const name = b.name.toLowerCase();
+            if (name.includes('spine') || name.includes('neck') || name.includes('head') || name.includes('arm') || name.includes('leg')) {
+              bones[b.name] = b;
+            }
+          }
+        });
 
-    initSkeleton();
+        // Intro Animation
+        humanModel.scale.set(0.1, 0.1, 0.1);
+        gsap.to(humanModel.scale, { x: 1, y: 1, z: 1, duration: 2, ease: "elastic.out(1, 0.75)" });
 
-    function renderOrganic() {
-      body.reset();
-      const s = state;
-
-      s.joints.forEach(j => {
-        // Transform to MarchingCubes local space
-        const lx = (j.pos.x / 1.4) + 0.5;
-        const ly = (j.pos.y / 2.3) + 0.1;
-        const lz = (j.pos.z / 1.4) + 0.5;
-
-        let weight = j.strength;
-
-        // Apply Muscle Influence
-        if (j.id.match(/bi|pec|trap|abs|tri|sh|cf|th|glute/)) {
-          weight *= (1 + s.muscleBulk * 0.8);
-        }
-
-        // Apply Adipose Influence
-        if (j.id.match(/hips|abs|th|hp/)) {
-          weight *= (1 + s.adipose * 0.6);
-        }
-
-        // Gender Phenotype Differentiators
-        if (s.gender === 'female') {
-          if (j.id.includes('hp') || j.id.includes('glute')) weight *= 1.4;
-          if (j.id.includes('sh') || j.id.includes('chest')) weight *= 0.75;
-          if (j.id.includes('pec')) weight *= 1.15; // Represents breast tissue mass in phenotypic engine
-        } else {
-          if (j.id.includes('sh') || j.id.includes('chest')) weight *= 1.35;
-          if (j.id.includes('hp')) weight *= 0.85;
-        }
-
-        body.addBall(lx, ly, lz, weight * 0.85, 8);
+        document.getElementById('loading').style.opacity = '0';
+        setTimeout(() => document.getElementById('loading').remove(), 600);
+      }, (xhr) => {
+        const p = (xhr.loaded / xhr.total) * 100;
+        progressFill.style.width = p + '%';
       });
     }
 
-    // ── Interaction Controller ───────────────────────────────────────────
-    let isPosing = false;
-    let posePoints = [];
-    const poseLineGeo = new THREE.BufferGeometry();
-    const poseLineMat = new THREE.LineBasicMaterial({ color: 0xc084fc, transparent: true, opacity: 1 });
-    const poseLine = new THREE.Line(poseLineGeo, poseLineMat);
-    scene.add(poseLine);
+    loadModel('male');
+
+    // ── Interaction System ──────────────────────────────────────────────
+    let currentTool = 'orbit';
+    let isDrawing = false;
+    let drawPoints = [];
+    const drawLineGeo = new THREE.BufferGeometry();
+    const drawLineMat = new THREE.LineBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 1 });
+    const drawLine = new THREE.Line(drawLineGeo, drawLineMat);
+    scene.add(drawLine);
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
-    const posePlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
-    function handlePose(e) {
-      if (!isPosing) return;
+    function handleDrawing(e) {
+      if (!isDrawing) return;
       const rect = canvas.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-
       raycaster.setFromCamera(mouse, camera);
       const hit = new THREE.Vector3();
-      raycaster.ray.intersectPlane(posePlane, hit);
-
-      if (posePoints.length === 0 || hit.distanceTo(posePoints[posePoints.length - 1]) > 0.04) {
-        posePoints.push(hit);
-        poseLineGeo.setFromPoints(posePoints);
+      raycaster.ray.intersectPlane(plane, hit);
+      if (drawPoints.length === 0 || hit.distanceTo(drawPoints[drawPoints.length - 1]) > 0.05) {
+        drawPoints.push(hit);
+        drawLineGeo.setFromPoints(drawPoints);
       }
     }
 
-    function calculateDeformation() {
-      if (posePoints.length < 6) return;
-      const curve = new THREE.CatmullRomCurve3(posePoints);
-      const isUpward = posePoints[0].y < posePoints[posePoints.length - 1].y;
+    function solvePose() {
+      if (drawPoints.length < 10) return;
+      const curve = new THREE.CatmullRomCurve3(drawPoints);
+      const isTopDown = drawPoints[0].y > drawPoints[drawPoints.length - 1].y;
 
-      state.joints.forEach(j => {
-        // Factor of height
-        const t = THREE.MathUtils.clamp(j.pos.y / 2.0, 0, 1);
-        const target = curve.getPoint(isUpward ? t : 1 - t);
+      // Apply to primary bones
+      Object.values(bones).forEach(bone => {
+        // Get bone height factor
+        const worldPos = new THREE.Vector3();
+        bone.getWorldPosition(worldPos);
+        const t = THREE.MathUtils.clamp(worldPos.y / 2.0, 0, 1);
+        const target = curve.getPoint(isTopDown ? 1 - t : t);
+        const tangent = curve.getTangent(isTopDown ? 1 - t : t);
 
-        gsap.to(j.pos, {
-          x: target.x,
-          y: target.y,
-          z: target.z,
-          duration: 1.4,
-          ease: "elastic.out(1, 0.75)"
+        gsap.to(bone.position, {
+          x: (target.x - worldPos.x) * 10, // Local offset factor
+          duration: 1.2,
+          ease: "power2.out"
+        });
+
+        // Align bone lookAt
+        const lookPos = target.clone().add(tangent);
+        gsap.to(bone.rotation, {
+          z: -tangent.x * 2,
+          duration: 1.2
         });
       });
     }
 
-    // Tool Handlers
-    let currentTool = 'orbit';
-    document.getElementById('tool-orbit').onclick = () => { currentTool = 'orbit'; toggleTools(); };
-    document.getElementById('tool-pose').onclick = () => { currentTool = 'pose'; toggleTools(); };
-    document.getElementById('tool-reset').onclick = () => { resetSimulation(); };
+    canvas.onmousedown = () => { if (currentTool === 'gesture') { isDrawing = true; drawPoints = []; drawLineMat.opacity = 1; } };
+    window.onmousemove = (e) => handleDrawing(e);
+    window.onmouseup = () => { if (isDrawing) { solvePose(); isDrawing = false; gsap.to(drawLineMat, { opacity: 0, duration: 1 }); } };
 
-    function toggleTools() {
+    // Tool Switching
+    document.getElementById('tool-orbit').onclick = () => { currentTool = 'orbit'; updateUI(); };
+    document.getElementById('tool-gesture').onclick = () => { currentTool = 'gesture'; updateUI(); };
+    document.getElementById('tool-reset').onclick = () => {
+      if (humanModel) {
+        humanModel.traverse(b => { if (b.isBone) gsap.to(b.rotation, { x: 0, y: 0, z: 0, duration: 1 }); });
+      }
+    };
+
+    function updateUI() {
       document.querySelectorAll('.tool-btn').forEach(b => b.classList.toggle('active', b.id.includes(currentTool)));
-      document.getElementById('status-msg').classList.toggle('visible', currentTool === 'pose');
       controls.enabled = currentTool === 'orbit';
     }
 
-    canvas.onmousedown = (e) => { if (currentTool === 'pose') { isPosing = true; posePoints = []; poseLineMat.opacity = 1; } };
-    window.onmousemove = (e) => handlePose(e);
-    window.onmouseup = () => { if (isPosing) { calculateDeformation(); isPosing = false; gsap.to(poseLineMat, { opacity: 0, duration: 1.2 }); } };
+    // Sidebar Logic
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.onclick = () => {
+        const group = btn.parentElement;
+        group.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
-    function resetSimulation() {
-      state.joints.forEach((j) => {
-        gsap.to(j.pos, { x: j.origin.x, y: j.origin.y, z: j.origin.z, duration: 1, ease: "power2.inOut" });
-      });
-    }
-
-    // ── Interface Sync ───────────────────────────────────────────────────
-    document.querySelectorAll('.tab-btn').forEach(t => {
-      t.onclick = () => {
-        const parent = t.parentElement;
-        parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        t.classList.add('active');
-
-        if (t.dataset.gender) state.gender = t.dataset.gender;
-        if (t.dataset.mode) {
-          state.view = t.dataset.mode;
-          const targetMat = t.dataset.mode === 'skin' ? skinMaterial : (t.dataset.mode === 'muscle' ? muscleMaterial : xrayMaterial);
-          body.material = targetMat;
+        if (btn.dataset.gender) {
+          studioState.gender = btn.dataset.gender;
+          loadModel(btn.dataset.gender);
+        }
+        if (btn.dataset.mode) {
+          studioState.view = btn.dataset.mode;
+          if (humanModel) {
+            humanModel.traverse(child => {
+              if (child.isMesh) {
+                if (btn.dataset.mode === 'skeletal') {
+                  child.material.transparent = true;
+                  child.material.opacity = 0.2;
+                  skeleton.visible = true;
+                } else {
+                  child.material.transparent = false;
+                  child.material.opacity = 1;
+                  skeleton.visible = false;
+                }
+              }
+            });
+          }
         }
       };
     });
 
     document.getElementById('slider-muscle').oninput = (e) => {
-      state.muscleBulk = parseFloat(e.target.value);
-      document.getElementById('label-muscle').textContent = Math.round(state.muscleBulk * 100) + '%';
+      const v = parseFloat(e.target.value);
+      gsap.to(humanModel.scale, { x: 1 + v * 0.1, duration: 0.5 });
+      document.getElementById('label-muscle').textContent = Math.round(v * 100) + '%';
     };
 
-    document.getElementById('slider-adipose').oninput = (e) => {
-      state.adipose = parseFloat(e.target.value);
-      document.getElementById('label-adipose').textContent = Math.round(state.adipose * 100) + '%';
+    document.getElementById('hide-sidebar-btn').onclick = () => {
+      document.getElementById('sidebar').classList.toggle('hidden');
     };
 
-    const skinTones = ['#f5deb3', '#e8c9a0', '#d4a574', '#c68642', '#8d5524', '#4a2912', '#ffa07a', '#7b68ee'];
+    const tones = ['#f5deb3', '#e8c9a0', '#d4a574', '#c68642', '#8d5524', '#4a2912', '#ffd1dc', '#c084fc'];
     const swatchBox = document.getElementById('skin-swatches');
-    skinTones.forEach(tc => {
+    tones.forEach(t => {
       const sw = document.createElement('div');
       sw.className = 'swatch';
-      sw.style.background = tc;
+      sw.style.background = t;
       sw.onclick = () => {
-        gsap.to(skinMaterial.color, { ...new THREE.Color(tc), duration: 0.6 });
+        studioState.skinColor = t;
+        if (humanModel) {
+          humanModel.traverse(c => { if (c.isMesh) gsap.to(c.material.color, { ...new THREE.Color(t), duration: 0.6 }); });
+        }
         swatchBox.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
         sw.classList.add('active');
       };
       swatchBox.appendChild(sw);
     });
 
-    document.getElementById('optimize-view').onclick = () => {
-      document.getElementById('sidebar').classList.toggle('collapsed');
-    };
-
-    // ── Execution Core ───────────────────────────────────────────────────
+    // ── Loop ────────────────────────────────────────────────────────────
     function animate() {
       requestAnimationFrame(animate);
-      renderOrganic();
       controls.update();
       renderer.render(scene, camera);
     }
+    animate();
 
     window.onresize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
-
-    // Boot Delay for Atmosphere
-    setTimeout(() => {
-      document.getElementById('loading').style.opacity = '0';
-      setTimeout(() => document.getElementById('loading').remove(), 600);
-      animate();
-    }, 2000);
 
   </script>
 </body>
