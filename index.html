@@ -1,463 +1,855 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>3D Human Anatomy</title>
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>AnatomyPro - 3D Human Gesture Lab</title>
 
-    html, body {
-      width: 100%; height: 100%;
-      background: #13131f;
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #030303;
+      --panel-bg: rgba(10, 10, 15, 0.7);
+      --accent: #6366f1;
+      --accent-glow: rgba(99, 102, 241, 0.5);
+      --text: #ffffff;
+      --text-dim: #94a3b8;
+      --border: rgba(255, 255, 255, 0.1);
+      --glass: rgba(255, 255, 255, 0.03);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
       overflow: hidden;
-      font-family: system-ui, sans-serif;
       touch-action: none;
     }
 
-    /* Canvas fills the entire screen, behind everything */
+    /* Fullscreen Canvas */
     #c {
       position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       z-index: 0;
-      display: block;
+      cursor: crosshair;
     }
 
-    /* ── Toggle button (always visible) ── */
-    #toggle {
+    /* Modern UI Overlay */
+    .overlay {
       position: fixed;
-      top: 14px; right: 14px;
-      z-index: 20;
-      width: 42px; height: 42px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(10,10,20,0.75);
-      color: #eee;
-      font-size: 18px;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    /* ── Side panel ── */
-    #panel {
-      position: fixed;
-      top: 0; right: 0;
-      width: min(260px, 85vw);
+      top: 0;
+      left: 0;
+      width: 100%;
       height: 100%;
-      background: rgba(8,8,18,0.88);
-      border-left: 1px solid rgba(255,255,255,0.07);
-      backdrop-filter: blur(14px);
-      z-index: 15;
+      pointer-events: none;
+      z-index: 10;
       display: flex;
       flex-direction: column;
-      gap: 0;
-      transform: translateX(100%);
-      transition: transform 0.28s ease;
-      overflow-y: auto;
-      padding: 64px 16px 24px;
-    }
-    #panel.open { transform: translateX(0); }
-
-    .section {
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      padding: 14px 0;
-    }
-    .section:last-child { border-bottom: none; }
-
-    .sec-label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #556;
-      margin-bottom: 10px;
+      padding: 24px;
     }
 
-    /* Swatches */
-    .swatches {
+    .top-bar {
       display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-    }
-    .sw {
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      border: 2px solid transparent;
-      cursor: pointer;
-      transition: transform .12s, border-color .12s;
-    }
-    .sw:hover { transform: scale(1.15); }
-    .sw.on { border-color: #fff; }
-
-    /* Color picker */
-    .color-pick {
-      width: 100%; height: 36px;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      cursor: pointer;
-      padding: 2px;
-      background: transparent;
-      margin-top: 10px;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: none;
     }
 
-    /* Slider row */
-    .sl-row {
+    .brand {
+      pointer-events: auto;
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      padding: 12px 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
+      gap: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
-    .sl-row:last-child { margin-bottom: 0; }
-    .sl-lbl {
+
+    .brand h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand span {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    /* Control Sidebar */
+    .sidebar {
+      position: fixed;
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 280px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(30px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      pointer-events: auto;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sidebar.hidden {
+      transform: translateY(-50%) translateX(320px);
+      opacity: 0;
+    }
+
+    .section-title {
       font-size: 11px;
-      color: #778;
-      width: 80px;
-      flex-shrink: 0;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 4px;
     }
-    input[type=range] {
+
+    /* Toggle Switches */
+    .toggle-group {
+      display: flex;
+      background: var(--glass);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .toggle-btn {
       flex: 1;
-      accent-color: #7eaaff;
-      height: 4px;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
     }
-    .sl-val {
-      font-size: 11px;
-      color: #aaa;
-      width: 28px;
+
+    .toggle-btn.active {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    /* Master Controls */
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      appearance: none;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .value-display {
+      font-size: 12px;
+      color: var(--text-dim);
+      min-width: 24px;
       text-align: right;
     }
 
-    /* Buttons */
-    .btn {
-      width: 100%;
-      padding: 9px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.06);
-      color: #ccc;
-      font-size: 12px;
-      font-weight: 600;
+    /* Action Buttons */
+    .primary-btn {
+      background: white;
+      color: black;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
       cursor: pointer;
-      text-align: center;
-      transition: background .15s;
-      margin-bottom: 8px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-    .btn:last-child { margin-bottom: 0; }
-    .btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
-    .btn.on { background: rgba(100,160,255,0.22); border-color: rgba(100,160,255,0.4); color: #aad4ff; }
-    .btn.red { border-color: rgba(255,80,80,0.25); color: #f88; }
-    .btn.red:hover { background: rgba(255,80,80,0.14); }
 
-    /* Info bar */
-    #info {
+    .primary-btn:hover {
+      background: #f0f0f0;
+      transform: translateY(-2px);
+    }
+
+    .primary-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .secondary-btn {
+      background: var(--glass);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Color Swatches */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .color-swatch {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.2s;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.1);
+    }
+
+    .color-swatch.active {
+      border-color: white;
+    }
+
+    /* Status Tooltip */
+    #status-tip {
       position: fixed;
-      bottom: 16px;
+      bottom: 32px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 11px;
-      color: rgba(255,255,255,0.28);
-      pointer-events: none;
-      z-index: 5;
-      white-space: nowrap;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: 12px;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    #status-tip.visible {
+      opacity: 1;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      position: fixed;
+      left: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: auto;
+    }
+
+    .tool-btn {
+      width: 52px;
+      height: 52px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .tool-btn:hover {
+      color: white;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .tool-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    /* Mobile Adaptivity */
+    @media (max-width: 768px) {
+      .sidebar {
+        bottom: 24px;
+        top: auto;
+        transform: none;
+        width: calc(100% - 48px);
+        left: 24px;
+      }
+
+      .sidebar.hidden {
+        transform: translateY(150%);
+      }
+
+      .toolbar {
+        top: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: row;
+      }
+    }
+
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: black;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
+
 <body>
 
-<!-- Three.js canvas — positioned first in DOM, z-index 0 -->
-<canvas id="c"></canvas>
-
-<!-- Panel toggle -->
-<button id="toggle" aria-label="Toggle panel">⚙</button>
-
-<!-- Side panel -->
-<div id="panel">
-
-  <div class="section">
-    <div class="sec-label">Skin Color</div>
-    <div class="swatches" id="swatches"></div>
-    <input type="color" class="color-pick" id="picker" value="#e8c9a0" />
+  <div id="loading">
+    <div class="spinner"></div>
+    <p style="margin-top: 20px; font-size: 14px; font-weight: 500;">Initializing Anatomy Engine...</p>
   </div>
 
-  <div class="section">
-    <div class="sec-label">Light</div>
-    <div class="sl-row">
-      <span class="sl-lbl">Intensity</span>
-      <input type="range" id="li" min="0" max="5" step="0.1" value="2.5" />
-      <span class="sl-val" id="li-v">2.5</span>
+  <canvas id="c"></canvas>
+
+  <div class="overlay">
+    <div class="top-bar">
+      <div class="brand">
+        <h1>AnatomyPro</h1>
+        <span>Gen 4.0</span>
+      </div>
     </div>
-    <div class="sl-row">
-      <span class="sl-lbl">Ambient</span>
-      <input type="range" id="ai" min="0" max="2" step="0.05" value="0.5" />
-      <span class="sl-val" id="ai-v">0.5</span>
+
+    <div class="toolbar">
+      <div class="tool-btn active" id="tool-orbit" title="Orbit Camera">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+          <path d="M2 12h20" />
+        </svg>
+      </div>
+      <div class="tool-btn" id="tool-draw" title="Draw Gesture S-Curve">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m12 19 7-7 3 3-7 7-3-3Z" />
+          <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5Z" />
+          <path d="m2 2 5 5" />
+          <path d="m8.5 8.5 1 1" />
+        </svg>
+      </div>
+      <div class="tool-btn" id="tool-reset" title="Reset Pose">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+        </svg>
+      </div>
     </div>
-    <div class="sl-row" style="margin-top:6px">
-      <span class="sl-lbl">Light Color</span>
-      <input type="color" id="lc" value="#ffffff"
-        style="flex:1;height:30px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;cursor:pointer;background:transparent;padding:2px;" />
+
+    <div class="sidebar" id="sidebar">
+      <div class="control-section">
+        <div class="section-title">Anatomy Preset</div>
+        <div class="toggle-group">
+          <button class="toggle-btn active" data-gender="male">Male</button>
+          <button class="toggle-btn" data-gender="female">Female</button>
+        </div>
+      </div>
+
+      <div class="control-section">
+        <div class="section-title">Appearance</div>
+        <div class="color-grid" id="color-grid"></div>
+      </div>
+
+      <div class="control-section">
+        <div class="section-title">Musculature</div>
+        <div class="control-item">
+          <div class="slider-container">
+            <input type="range" id="param-muscle" min="0" max="1" step="0.01" value="0.5">
+            <span class="value-display" id="val-muscle">50%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="control-section">
+        <div class="section-title">Atmosphere</div>
+        <div class="control-item">
+          <span style="font-size: 12px; color: var(--text-dim);">Exposure</span>
+          <div class="slider-container">
+            <input type="range" id="param-light" min="0" max="4" step="0.1" value="1.5">
+          </div>
+        </div>
+      </div>
+
+      <button class="primary-btn" id="hide-sidebar-btn">
+        Optimize View
+      </button>
     </div>
-    <div style="margin-top:10px">
-      <button class="btn" id="moveBtn">☀ Move Light</button>
+
+    <div id="status-tip">
+      Hold SPACE and Draw an S-curve to deform the body
     </div>
   </div>
 
-  <div class="section">
-    <button class="btn red" id="resetBtn">↺ Reset All</button>
-  </div>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.2/index.js"
+      }
+    }
+  </script>
 
-</div>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import gsap from 'gsap';
 
-<div id="info">Pinch/scroll to zoom · Drag to rotate</div>
+    // ── Setup ────────────────────────────────────────────────────────────
+    const canvas = document.getElementById('c');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ReinhardToneMapping;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 1.5, 5);
 
-// ── Renderer ──────────────────────────────────────────────────────────
-const canvas = document.getElementById('c');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.target.set(0, 1.1, 0);
 
-// ── Scene / Camera ────────────────────────────────────────────────────
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x13131f);
-scene.fog = new THREE.Fog(0x13131f, 14, 36);
+    // ── Environments ──────────────────────────────────────────────────────
+    const ambient = new THREE.AmbientLight(0xffffff, 0.2);
+    scene.add(ambient);
 
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 1.7, 6);
+    const mainLight = new THREE.PointLight(0xffffff, 15, 20);
+    mainLight.position.set(3, 3, 4);
+    mainLight.castShadow = true;
+    mainLight.shadow.mapSize.set(1024, 1024);
+    scene.add(mainLight);
 
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 1.2, 0);
-controls.enableDamping = true;
-controls.dampingFactor = 0.08;
-controls.minDistance = 1.5;
-controls.maxDistance = 14;
+    const rimLight = new THREE.SpotLight(0x88aaff, 30, 10, 0.4);
+    rimLight.position.set(-3, 2, -4);
+    scene.add(rimLight);
 
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+    // Modern Grid
+    const grid = new THREE.GridHelper(20, 40, 0x333333, 0x151515);
+    grid.position.y = -0.01;
+    scene.add(grid);
 
-// ── Lights ────────────────────────────────────────────────────────────
-const ambient = new THREE.AmbientLight(0xffffff, 0.5);
-scene.add(ambient);
+    // ── Realistic Human Engine ───────────────────────────────────────────
+    // We use a high-fidelity capsule-based approach with morphable joints
 
-const sun = new THREE.DirectionalLight(0xffffff, 2.5);
-sun.position.set(3, 5, 3);
-sun.castShadow = true;
-sun.shadow.mapSize.set(1024, 1024);
-sun.shadow.camera.left = -4; sun.shadow.camera.right = 4;
-sun.shadow.camera.top = 6;  sun.shadow.camera.bottom = -2;
-scene.add(sun);
+    const skinMaterial = new THREE.MeshStandardMaterial({
+      color: 0xd4a574,
+      roughness: 0.4,
+      metalness: 0.05,
+      // Fake SSS using emissive or rim
+      emissive: 0x221111,
+      emissiveIntensity: 0.2
+    });
 
-const rim = new THREE.DirectionalLight(0x4466ff, 0.4);
-rim.position.set(-3, 2, -4);
-scene.add(rim);
+    const bodyParts = new THREE.Group();
+    scene.add(bodyParts);
 
-// Light position indicator
-const lightBall = new THREE.Mesh(
-  new THREE.SphereGeometry(0.11, 14, 14),
-  new THREE.MeshBasicMaterial({ color: 0xffff88 })
-);
-lightBall.position.copy(sun.position);
-scene.add(lightBall);
+    // Geometry Factory
+    const createCapsule = (radius, length) => {
+      const geo = new THREE.CapsuleGeometry(radius, length, 10, 20);
+      return new THREE.Mesh(geo, skinMaterial);
+    };
 
-// ── Floor ─────────────────────────────────────────────────────────────
-const floorMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(24, 24),
-  new THREE.ShadowMaterial({ opacity: 0.28 })
-);
-floorMesh.rotation.x = -Math.PI / 2;
-floorMesh.receiveShadow = true;
-scene.add(floorMesh);
-scene.add(new THREE.GridHelper(18, 36, 0x2a2a44, 0x1e1e36));
+    const anatomy = {
+      spine: [],
+      limbs: {},
+      genderProps: {
+        male: { shoulders: 0.6, hips: 0.35, chest: 0.35, height: 1.0 },
+        female: { shoulders: 0.4, hips: 0.5, chest: 0.28, height: 0.95 }
+      },
+      currentGender: 'male'
+    };
 
-// ── Human Figure ──────────────────────────────────────────────────────
-const mat = new THREE.MeshStandardMaterial({ color: 0xe8c9a0, roughness: 0.55, metalness: 0.02 });
-const human = new THREE.Group();
-scene.add(human);
+    function buildAnatomy() {
+      // Spine Segments (Hips to Head)
+      const segments = 5;
+      const segLen = 0.15;
+      for (let i = 0; i < segments; i++) {
+        const seg = createCapsule(0.12, segLen);
+        seg.position.y = 0.7 + i * (segLen + 0.05);
+        seg.castShadow = true;
+        bodyParts.add(seg);
+        anatomy.spine.push(seg);
+      }
 
-function limb(geo, x, y, z, rx = 0, ry = 0, rz = 0, sx = 1, sy = 1, sz = 1) {
-  const m = new THREE.Mesh(geo, mat);
-  m.position.set(x, y, z);
-  m.rotation.set(rx, ry, rz);
-  m.scale.set(sx, sy, sz);
-  m.castShadow = true;
-  m.receiveShadow = true;
-  human.add(m);
-  return m;
-}
+      // Head
+      const head = createCapsule(0.12, 0.15);
+      head.position.y = 1.9;
+      head.castShadow = true;
+      bodyParts.add(head);
+      anatomy.limbs.head = head;
 
-const Sp = (r, w = 20, h = 20) => new THREE.SphereGeometry(r, w, h);
-const Cy = (rt, rb, len, s = 14) => new THREE.CylinderGeometry(rt, rb, len, s);
+      // Shoulders
+      const shoulders = createCapsule(0.1, 0.5); // Width determined by gender
+      shoulders.rotation.z = Math.PI / 2;
+      shoulders.position.y = 1.7;
+      bodyParts.add(shoulders);
+      anatomy.limbs.shoulders = shoulders;
 
-// Head & neck
-limb(Sp(0.24, 24, 24),        0, 3.28, 0);
-limb(Cy(0.10, 0.12, 0.28),    0, 2.93, 0);
+      // Limbs (Arms & Legs)
+      const createLimb = (name, x, y, len, radius) => {
+        const upper = createCapsule(radius, len);
+        const lower = createCapsule(radius * 0.8, len);
+        upper.position.set(x, y, 0);
+        lower.position.set(x, y - len, 0);
+        bodyParts.add(upper);
+        bodyParts.add(lower);
+        anatomy.limbs[name] = { upper, lower };
+      };
 
-// Torso
-limb(Cy(0.38, 0.34, 0.70, 20), 0, 2.35, 0);
-limb(Cy(0.34, 0.30, 0.42, 20), 0, 1.83, 0);
-limb(Cy(0.32, 0.26, 0.35, 20), 0, 1.46, 0);
+      createLimb('armL', -0.3, 1.5, 0.35, 0.05);
+      createLimb('armR', 0.3, 1.5, 0.35, 0.05);
+      createLimb('legL', -0.15, 0.5, 0.45, 0.07);
+      createLimb('legR', 0.15, 0.5, 0.45, 0.07);
+    }
 
-// Arms (left s=-1, right s=1)
-for (const s of [-1, 1]) {
-  limb(Sp(0.15, 14, 14),          s*0.50, 2.58, 0,  0, 0,  0      ); // shoulder
-  limb(Cy(0.09, 0.08, 0.62),      s*0.62, 2.22, 0,  0, 0,  s*0.18 ); // upper arm
-  limb(Sp(0.085, 10, 10),         s*0.66, 1.87, 0                  ); // elbow
-  limb(Cy(0.075, 0.065, 0.56),    s*0.73, 1.56, 0.04, 0.08,0,s*0.22); // forearm
-  limb(Sp(0.09, 10, 10),          s*0.83, 1.14, 0.07, 0,0,0, 1.1,0.9,0.7); // hand
-}
+    buildAnatomy();
 
-// Legs
-for (const s of [-1, 1]) {
-  limb(Cy(0.16, 0.14, 0.72, 16),  s*0.18, 0.88, 0  ); // upper leg
-  limb(Sp(0.12, 12, 12),          s*0.18, 0.49, 0.02); // knee
-  limb(Cy(0.10, 0.085, 0.68),     s*0.18, 0.13, 0   ); // lower leg
-  limb(Sp(0.09, 10, 10),          s*0.18,-0.32, 0.06, 0,0,0, 0.9,0.5,1.4); // foot
-}
+    // Reset Pose
+    function resetPose() {
+      const segLen = 0.15;
+      anatomy.spine.forEach((seg, i) => {
+        gsap.to(seg.position, { y: 0.7 + i * (segLen + 0.05), x: 0, z: 0, duration: 1, ease: "power3.out" });
+        gsap.to(seg.rotation, { x: 0, y: 0, z: 0, duration: 1 });
+      });
 
-// Eyes
-const eyeMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3 });
-for (const s of [-1, 1]) {
-  const eye = new THREE.Mesh(Sp(0.04, 8, 8), eyeMat);
-  eye.position.set(s * 0.085, 3.25, 0.21);
-  human.add(eye);
-}
+      // Reset Limbs
+      const props = anatomy.genderProps[anatomy.currentGender];
+      gsap.to(anatomy.limbs.head.position, { y: 1.85, x: 0, z: 0, duration: 1 });
+      gsap.to(anatomy.limbs.shoulders.position, { y: 1.7, x: 0, z: 0, duration: 1 });
+      gsap.to(anatomy.limbs.shoulders.scale, { x: 1, duration: 1 });
 
-// ── Color swatches ────────────────────────────────────────────────────
-const SKINS = [
-  '#f5deb3','#e8c9a0','#d4a574','#c68642',
-  '#8d5524','#4a2912','#ff6b6b','#45b7d1',
-  '#96ceb4','#dfe6e9',
-];
+      const resetL = (limb, x, y, len) => {
+        gsap.to(limb.upper.position, { x, y, z: 0, duration: 1 });
+        gsap.to(limb.lower.position, { x, y: y - len - 0.1, z: 0, duration: 1 });
+        gsap.to(limb.upper.rotation, { x: 0, y: 0, z: 0, duration: 1 });
+        gsap.to(limb.lower.rotation, { x: 0, y: 0, z: 0, duration: 1 });
+      };
 
-const swatchContainer = document.getElementById('swatches');
-SKINS.forEach((hex, i) => {
-  const d = document.createElement('div');
-  d.className = 'sw' + (i === 1 ? ' on' : '');
-  d.style.background = hex;
-  d.addEventListener('click', () => {
-    document.querySelectorAll('.sw').forEach(x => x.classList.remove('on'));
-    d.classList.add('on');
-    mat.color.set(hex);
-    document.getElementById('picker').value = hex;
-  });
-  swatchContainer.appendChild(d);
-});
+      resetL(anatomy.limbs.armL, -props.shoulders / 2, 1.5, 0.35);
+      resetL(anatomy.limbs.armR, props.shoulders / 2, 1.5, 0.35);
+      resetL(anatomy.limbs.legL, -0.15, 0.5, 0.45);
+      resetL(anatomy.limbs.legR, 0.15, 0.5, 0.45);
+    }
 
-document.getElementById('picker').addEventListener('input', e => {
-  mat.color.set(e.target.value);
-  document.querySelectorAll('.sw').forEach(x => x.classList.remove('on'));
-});
+    // ── Gesture Lab (S-Curve Magic) ────────────────────────────────────
+    let isDrawing = false;
+    let drawPoints = [];
+    const drawLineGeo = new THREE.BufferGeometry();
+    const drawLineMat = new THREE.LineBasicMaterial({ color: 0x6366f1, linewidth: 3 });
+    const drawLine = new THREE.Line(drawLineGeo, drawLineMat);
+    scene.add(drawLine);
 
-// ── Light sliders ─────────────────────────────────────────────────────
-const liSlider = document.getElementById('li');
-const aiSlider = document.getElementById('ai');
-const liVal    = document.getElementById('li-v');
-const aiVal    = document.getElementById('ai-v');
+    const ghostMaterial = new THREE.MeshBasicMaterial({ color: 0x6366f1, transparent: true, opacity: 0.2 });
+    const suggestions = new THREE.Group();
+    scene.add(suggestions);
 
-liSlider.addEventListener('input', () => { sun.intensity = +liSlider.value; liVal.textContent = liSlider.value; });
-aiSlider.addEventListener('input', () => { ambient.intensity = +aiSlider.value; aiVal.textContent = aiSlider.value; });
-document.getElementById('lc').addEventListener('input', e => {
-  sun.color.set(e.target.value);
-  lightBall.material.color.set(e.target.value);
-});
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const drawingPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
-// ── Move Light ────────────────────────────────────────────────────────
-let lightMode = false;
-let draggingLight = false;
-const moveBtn = document.getElementById('moveBtn');
-const dragPlane = new THREE.Plane();
-const raycaster = new THREE.Raycaster();
-const ndc = new THREE.Vector2();
-const hit = new THREE.Vector3();
+    function startDrawing(e) {
+      isDrawing = true;
+      drawPoints = [];
+      suggestions.clear();
+      updateDraw(e);
+      controls.enabled = false;
+    }
 
-moveBtn.addEventListener('click', () => {
-  lightMode = !lightMode;
-  moveBtn.classList.toggle('on', lightMode);
-  moveBtn.textContent = lightMode ? '✕ Done Moving' : '☀ Move Light';
-  controls.enabled = !lightMode;
-  document.getElementById('info').textContent = lightMode
-    ? 'Drag canvas to reposition the light'
-    : 'Pinch/scroll to zoom · Drag to rotate';
-});
+    function updateDraw(e) {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
-canvas.addEventListener('pointerdown', e => {
-  if (!lightMode) return;
-  draggingLight = true;
-  applyLightMove(e);
-});
-canvas.addEventListener('pointermove', e => {
-  if (!lightMode || !draggingLight) return;
-  applyLightMove(e);
-});
-canvas.addEventListener('pointerup', () => { draggingLight = false; });
+      raycaster.setFromCamera(mouse, camera);
+      const intersect = new THREE.Vector3();
+      raycaster.ray.intersectPlane(drawingPlane, intersect);
 
-function applyLightMove(e) {
-  const rect = canvas.getBoundingClientRect();
-  ndc.set(
-    ((e.clientX - rect.left) / rect.width)  *  2 - 1,
-    ((e.clientY - rect.top)  / rect.height) * -2 + 1
-  );
-  raycaster.setFromCamera(ndc, camera);
-  dragPlane.setFromNormalAndCoplanarPoint(
-    camera.getWorldDirection(new THREE.Vector3()).negate(),
-    lightBall.position
-  );
-  if (raycaster.ray.intersectPlane(dragPlane, hit)) {
-    lightBall.position.copy(hit);
-    sun.position.copy(hit);
-  }
-}
+      drawPoints.push(intersect);
+      if (drawPoints.length > 2) {
+        drawLineGeo.setFromPoints(drawPoints);
+        suggestPosture();
+      }
+    }
 
-// ── Panel toggle ──────────────────────────────────────────────────────
-const panel = document.getElementById('panel');
-document.getElementById('toggle').addEventListener('click', () => {
-  panel.classList.toggle('open');
-});
+    function endDrawing() {
+      if (!isDrawing) return;
+      isDrawing = false;
+      controls.enabled = true;
+      applyPosture();
 
-// ── Reset ─────────────────────────────────────────────────────────────
-document.getElementById('resetBtn').addEventListener('click', () => {
-  mat.color.set(0xe8c9a0);
-  document.getElementById('picker').value = '#e8c9a0';
-  document.querySelectorAll('.sw').forEach((d, i) => d.classList.toggle('on', i === 1));
+      // Fade out draw line
+      gsap.to(drawLineMat, {
+        opacity: 0, duration: 0.5, onComplete: () => {
+          drawLineGeo.setFromPoints([]);
+          drawLineMat.opacity = 1;
+        }
+      });
+    }
 
-  sun.position.set(3, 5, 3); sun.intensity = 2.5; sun.color.set(0xffffff);
-  lightBall.position.copy(sun.position); lightBall.material.color.set(0xffff88);
-  ambient.intensity = 0.5;
-  liSlider.value = 2.5; liVal.textContent = '2.5';
-  aiSlider.value = 0.5; aiVal.textContent = '0.5';
-  document.getElementById('lc').value = '#ffffff';
+    function suggestPosture() {
+      if (drawPoints.length < 5) return;
+      suggestions.clear();
 
-  camera.position.set(0, 1.7, 6);
-  controls.target.set(0, 1.2, 0);
+      const curve = new THREE.CatmullRomCurve3(drawPoints);
+      const segments = 10;
+      for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const pos = curve.getPoint(t);
+        const dot = new THREE.Mesh(new THREE.SphereGeometry(0.02), ghostMaterial);
+        dot.position.copy(pos);
+        suggestions.add(dot);
+      }
+    }
 
-  if (lightMode) moveBtn.click();
-});
+    function applyPosture() {
+      if (drawPoints.length < 5) return;
+      const curve = new THREE.CatmullRomCurve3(drawPoints);
 
-// ── Render loop ───────────────────────────────────────────────────────
-let t = 0;
-(function loop() {
-  requestAnimationFrame(loop);
-  t += 0.006;
-  human.rotation.y = Math.sin(t * 0.4) * 0.025;
-  controls.update();
-  renderer.render(scene, camera);
-})();
-</script>
+      // Align Spine
+      anatomy.spine.forEach((seg, i) => {
+        const t = (i / (anatomy.spine.length - 1)) * 0.6 + 0.2; // Sample middle of curve
+        const pos = curve.getPoint(t);
+        const tangent = curve.getTangent(t);
+
+        gsap.to(seg.position, { x: pos.x, y: pos.y, z: pos.z, duration: 0.8, ease: "back.out(1.2)" });
+
+        // Alignment rotation
+        const lookAt = pos.clone().add(tangent);
+        seg.lookAt(lookAt);
+        seg.rotateX(Math.PI / 2);
+      });
+
+      // Align Head
+      const headPos = curve.getPoint(0.9);
+      gsap.to(anatomy.limbs.head.position, { x: headPos.x, y: headPos.y, z: headPos.z, duration: 0.8 });
+
+      // Align Shoulders
+      const shoulderPos = curve.getPoint(0.75);
+      gsap.to(anatomy.limbs.shoulders.position, { x: shoulderPos.x, y: shoulderPos.y, z: shoulderPos.z, duration: 0.8 });
+
+      // Dynamically suggest limb spread based on curve width
+      const width = Math.abs(drawPoints[0].x - drawPoints[drawPoints.length - 1].x);
+      const intensity = Math.min(width * 2, 1.5);
+
+      const p = anatomy.genderProps[anatomy.currentGender];
+
+      gsap.to(anatomy.limbs.armL.upper.rotation, { z: intensity, duration: 1 });
+      gsap.to(anatomy.limbs.armR.upper.rotation, { z: -intensity, duration: 1 });
+      gsap.to(anatomy.limbs.legL.upper.rotation, { z: intensity * 0.5, duration: 1 });
+      gsap.to(anatomy.limbs.legR.upper.rotation, { z: -intensity * 0.5, duration: 1 });
+    }
+
+    // ── Interaction Logic ──────────────────────────────────────────────
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Tool Switching
+    let currentTool = 'orbit';
+    document.getElementById('tool-orbit').onclick = () => switchTool('orbit');
+    document.getElementById('tool-draw').onclick = () => switchTool('draw');
+    document.getElementById('tool-reset').onclick = () => { resetPose(); switchTool('orbit'); };
+
+    function switchTool(t) {
+      currentTool = t;
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tool-' + t).classList.add('active');
+
+      const tip = document.getElementById('status-tip');
+      if (t === 'draw') {
+        tip.textContent = "Click and Drag to draw an S-curve for the gesture";
+        tip.classList.add('visible');
+      } else {
+        tip.classList.remove('visible');
+      }
+    }
+
+    canvas.addEventListener('mousedown', (e) => { if (currentTool === 'draw') startDrawing(e); });
+    window.addEventListener('mousemove', (e) => { if (isDrawing) updateDraw(e); });
+    window.addEventListener('mouseup', endDrawing);
+
+    // Gender Toggle
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const gender = btn.dataset.gender;
+        anatomy.currentGender = gender;
+        morphTo(gender);
+      };
+    });
+
+    function morphTo(gender) {
+      const p = anatomy.genderProps[gender];
+
+      // Shoulders
+      gsap.to(anatomy.limbs.shoulders.scale, { x: p.shoulders / 0.5, duration: 1, ease: "power2.inOut" });
+
+      // Hips (Spine segments scale)
+      anatomy.spine.forEach((seg, i) => {
+        if (i < 2) { // Hips
+          gsap.to(seg.scale, { x: p.hips / 0.12, z: p.hips / 0.12, duration: 1 });
+        } else if (i === 3) { // Chest
+          gsap.to(seg.scale, { x: p.chest / 0.12, z: p.chest / 0.12, duration: 1 });
+        }
+      });
+
+      // Update Limb Positions
+      gsap.to(anatomy.limbs.armL.upper.position, { x: -p.shoulders / 2, duration: 1 });
+      gsap.to(anatomy.limbs.armR.upper.position, { x: p.shoulders / 2, duration: 1 });
+
+      // Color adjustment for gender vibe
+      gsap.to(skinMaterial.color, {
+        r: gender === 'female' ? 0.95 : 0.83,
+        g: gender === 'female' ? 0.85 : 0.78,
+        b: gender === 'female' ? 0.75 : 0.65,
+        duration: 1
+      });
+    }
+
+    // Colors
+    const colors = ['#f5deb3', '#e8c9a0', '#d4a574', '#c68642', '#8d5524', '#4a2912', '#ffa07a', '#7b68ee', '#20b2aa', '#ffffff'];
+    const colorGrid = document.getElementById('color-grid');
+    colors.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'color-swatch';
+      div.style.background = c;
+      div.onclick = () => {
+        gsap.to(skinMaterial.color, { ...new THREE.Color(c), duration: 0.5 });
+        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+        div.classList.add('active');
+      };
+      colorGrid.appendChild(div);
+    });
+
+    // UI Sliders
+    document.getElementById('param-muscle').oninput = (e) => {
+      const v = e.target.value;
+      document.getElementById('val-muscle').textContent = Math.round(v * 100) + '%';
+      bodyParts.scale.set(1 + v * 0.1, 1, 1 + v * 0.1); // Simple bulk morph
+    };
+
+    document.getElementById('param-light').oninput = (e) => {
+      mainLight.intensity = e.target.value * 10;
+    };
+
+    document.getElementById('hide-sidebar-btn').onclick = () => {
+      document.getElementById('sidebar').classList.toggle('hidden');
+    };
+
+    // ── Loop ────────────────────────────────────────────────────────────
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (!isDrawing) {
+        // Subtle breathing animation
+        const t = performance.now() * 0.001;
+        anatomy.spine[3].scale.z = 1 + Math.sin(t) * 0.02;
+        anatomy.limbs.shoulders.position.y += Math.sin(t) * 0.0005;
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    // Final Init
+    setTimeout(() => {
+      document.getElementById('loading').style.opacity = '0';
+      setTimeout(() => document.getElementById('loading').remove(), 500);
+      animate();
+    }, 1200);
+
+  </script>
 </body>
+
 </html>
